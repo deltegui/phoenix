@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
-
-	"github.com/Percorso/Core/src/domain"
 )
 
 var templateEngine *template.Template = nil
