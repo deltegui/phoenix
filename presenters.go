@@ -27,7 +27,7 @@ func getTemplateEngine() *template.Template {
 }
 
 type HTMLPresenter struct {
-	writer http.ResponseWriter
+	Writer http.ResponseWriter
 }
 
 func (presenter HTMLPresenter) Present(data interface{}) {
@@ -49,7 +49,7 @@ func (presenter HTMLPresenter) PresentError(caseError error) {
 }
 
 func (presenter HTMLPresenter) render(view string, data interface{}) bool {
-	if err := getTemplateEngine().ExecuteTemplate(presenter.writer, view, data); err != nil {
+	if err := getTemplateEngine().ExecuteTemplate(presenter.Writer, view, data); err != nil {
 		log.Print("Error during rendering template: ")
 		log.Println(err)
 		return false
@@ -69,7 +69,7 @@ func viewNameFromCallerSkipping(skip int) string {
 }
 
 type JSONPresenter struct {
-	writer http.ResponseWriter
+	Writer http.ResponseWriter
 }
 
 func (presenter JSONPresenter) Present(data interface{}) {
@@ -78,11 +78,11 @@ func (presenter JSONPresenter) Present(data interface{}) {
 		log.Println("Error marshaling data: ", err)
 		return
 	}
-	presenter.writer.Header().Set("Content-Type", "application/json")
-	presenter.writer.Write(response)
+	presenter.Writer.Header().Set("Content-Type", "application/json")
+	presenter.Writer.Write(response)
 }
 
 func (presenter JSONPresenter) PresentError(caseError error) {
-	presenter.writer.WriteHeader(http.StatusBadRequest)
+	presenter.Writer.WriteHeader(http.StatusBadRequest)
 	presenter.Present(caseError)
 }
