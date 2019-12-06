@@ -3,8 +3,8 @@ package locomotive
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/deltegui/locomotive/vars"
 	"html/template"
-	"locomotive/vars"
 	"log"
 	"net/http"
 	"runtime"

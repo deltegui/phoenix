@@ -3,10 +3,10 @@ package locomotive
 import (
 	"fmt"
 	"io/ioutil"
-	"locomotive/vars"
 	"log"
 	"net/http"
 
+	"github.com/deltegui/locomotive/vars"
 	"github.com/gorilla/mux"
 )
 

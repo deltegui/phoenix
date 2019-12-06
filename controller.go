@@ -1,7 +1,7 @@
 package locomotive
 
 import (
-	"locomotive/injector"
+	"github.com/deltegui/locomotive/injector"
 	"log"
 	"net/http"
 
