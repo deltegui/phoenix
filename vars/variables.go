@@ -1,6 +1,6 @@
 package vars
 
-const (
+var (
 	//Name of your project
 	Name string = "gotemplate"
 
