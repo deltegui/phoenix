@@ -26,12 +26,11 @@ func getTemplateEngine() *template.Template {
 	return templateEngine
 }
 
-type htmlPresenter struct {
+type HTMLPresenter struct {
 	writer http.ResponseWriter
 }
 
-//Present iformation in HTML
-func (presenter htmlPresenter) Present(data interface{}) {
+func (presenter HTMLPresenter) Present(data interface{}) {
 	found := false
 	for skip := 3; skip > 1 && !found; skip-- {
 		view := viewNameFromCallerSkipping(skip)
@@ -45,12 +44,11 @@ func (presenter htmlPresenter) Present(data interface{}) {
 	}
 }
 
-//PresentError in HTML
-func (presenter htmlPresenter) PresentError(caseError error) {
+func (presenter HTMLPresenter) PresentError(caseError error) {
 	presenter.render("error.html", caseError)
 }
 
-func (presenter htmlPresenter) render(view string, data interface{}) bool {
+func (presenter HTMLPresenter) render(view string, data interface{}) bool {
 	if err := getTemplateEngine().ExecuteTemplate(presenter.writer, view, data); err != nil {
 		log.Print("Error during rendering template: ")
 		log.Println(err)
@@ -70,12 +68,11 @@ func viewNameFromCallerSkipping(skip int) string {
 	return fmt.Sprintf("%s.html", strings.ToLower(tokens[len(tokens)-1]))
 }
 
-type jsonPresenter struct {
+type JSONPresenter struct {
 	writer http.ResponseWriter
 }
 
-//Present data in JSON format
-func (presenter jsonPresenter) Present(data interface{}) {
+func (presenter JSONPresenter) Present(data interface{}) {
 	response, err := json.Marshal(data)
 	if err != nil {
 		log.Println("Error marshaling data: ", err)
@@ -85,8 +82,7 @@ func (presenter jsonPresenter) Present(data interface{}) {
 	presenter.writer.Write(response)
 }
 
-//PresentError in JSON format
-func (presenter jsonPresenter) PresentError(caseError error) {
+func (presenter JSONPresenter) PresentError(caseError error) {
 	presenter.writer.WriteHeader(http.StatusBadRequest)
 	presenter.Present(caseError)
 }
