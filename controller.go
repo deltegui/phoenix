@@ -44,6 +44,10 @@ func Map(root string, controllerBuilder injector.Builder) {
 	}
 }
 
+func MapRoot(controllerBuilder injector.Builder) {
+	Map("/", controllerBuilder)
+}
+
 type middleware func(http.HandlerFunc) http.HandlerFunc
 
 func logMiddleware(next http.HandlerFunc) http.HandlerFunc {
