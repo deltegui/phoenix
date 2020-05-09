@@ -8,8 +8,7 @@ import (
 var builders = make(map[reflect.Type]Builder)
 
 // Builder is a function that expects nothing and retuns
-// the type that builds. It's represented as interface
-// because golang's type system is shit.
+// the type that builds. It's represented as interface.
 type Builder interface{}
 
 // Add a builder to the dependency injector.

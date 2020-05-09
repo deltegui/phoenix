@@ -3,13 +3,19 @@ package locomotive
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/deltegui/locomotive/vars"
 	"html/template"
 	"log"
 	"net/http"
 	"runtime"
 	"strings"
+
+	"github.com/deltegui/locomotive/vars"
 )
+
+type Presenter interface {
+	Present(data interface{})
+	PresentError(data error)
+}
 
 var templateEngine *template.Template = nil
 

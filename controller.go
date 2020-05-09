@@ -1,9 +1,10 @@
 package locomotive
 
 import (
-	"github.com/deltegui/locomotive/injector"
 	"log"
 	"net/http"
+
+	"github.com/deltegui/locomotive/injector"
 
 	"github.com/gorilla/mux"
 )
@@ -18,6 +19,7 @@ const (
 	Delete HTTPMethod = "Delete"
 )
 
+// Mapping represent a html mapping for a handler.
 type Mapping struct {
 	Method   HTTPMethod
 	Handler  http.HandlerFunc
