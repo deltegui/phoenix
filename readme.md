@@ -5,6 +5,27 @@ Locomotive is a tiny library build on top of GO stdlib and Gorilla.Mux to simpli
 
 It's recommended to use locomotive-cli to automate and boost 🚀 project creation and structure: https://github.com/deltegui/locomotive-cli.
 
+## Configuration
+You can configure Locomotive to fit your needs.
+Locomotive by default have disabled:
+
+* HTML template. You can't use HTMLPresenter.
+* Logo File.
+* Static server.
+
+And the project name and version will be "Locomotive" and "v0.1.0" by default.
+
+If you want to configure these options you can get a LocomotiveConfig struct, then you can change your project name and version and enable the other features:
+
+```go
+locomotive.
+	Configure().
+	SetProjectVersion("your project name", "your project version").
+	EnableLogoFile(). // It will search a file named "logo" inside your project root.
+	EnableStaticServer(). // It will serve static files that are inside /static.
+	EnableTemplates() // It will enable templates.
+```
+
 ## Dependency Injection API
 The way that the dependency injection works it's using builders. A builder is a function that takes as parameters the types you need and returns your brand new struct. For instance let's use a builder to create a Human:
 

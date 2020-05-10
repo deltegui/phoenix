@@ -18,7 +18,7 @@ func Run(listenURL string) {
 }
 
 func createStaticServer(router *mux.Router) {
-	if vars.EnableStaticServer {
+	if vars.IsStaticServerEnabled() {
 		s := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
 		router.PathPrefix("/static").Handler(s)
 		log.Println("Created static server!")
@@ -26,12 +26,12 @@ func createStaticServer(router *mux.Router) {
 }
 
 func printLogo() {
-	if vars.LogoFile != "" {
-		logo, err := ioutil.ReadFile(vars.LogoFile)
+	if vars.IsLogoFileEnabled() {
+		logo, err := ioutil.ReadFile(vars.GetLogoFilename())
 		if err != nil {
 			log.Fatalf("Cannot read logo file: %s\n", err)
 		}
 		fmt.Println(string(logo))
 	}
-	fmt.Printf("%s v%s\n", vars.Name, vars.Version)
+	fmt.Print(vars.FormatProjectInfo())
 }

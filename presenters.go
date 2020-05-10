@@ -23,7 +23,7 @@ func getTemplateEngine() *template.Template {
 	if templateEngine != nil {
 		return templateEngine
 	}
-	if vars.EnableTemplates {
+	if vars.IsTemplatesEnabled() {
 		templateEngine = template.Must(template.New("html").ParseGlob("./templates/*/*.html"))
 		log.Printf("Template engine %s\n", templateEngine.DefinedTemplates())
 	} else {
