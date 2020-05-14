@@ -62,7 +62,7 @@ func (presenter HTMLPresenter) PresentWithMeta(data interface{}, metadata Presen
 }
 
 func (presenter HTMLPresenter) PresentError(caseError error) {
-	presenter.Present(caseError, PresenterMetadata{"error.html"})
+	presenter.PresentWithMeta(caseError, PresenterMetadata{"error.html"})
 }
 
 func (presenter HTMLPresenter) render(view string, data interface{}) bool {
