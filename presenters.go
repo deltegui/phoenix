@@ -18,7 +18,7 @@ type PresenterMetadata struct {
 
 type Presenter interface {
 	Present(data interface{})
-	Present(data interface{}, metadata PresenterMetadata)
+	PresentWithMeta(data interface{}, metadata PresenterMetadata)
 	PresentError(data error)
 }
 
@@ -55,7 +55,7 @@ func (presenter HTMLPresenter) Present(data interface{}) {
 	}
 }
 
-func (presenter HTMLPresenter) Present(data interface{}, metadata PresenterMetadata) {
+func (presenter HTMLPresenter) PresentWithMeta(data interface{}, metadata PresenterMetadata) {
 	if !presenter.render(metadata.ViewName, data) {
 		log.Fatalf("Cannot find view with name: %s\n", metadata.ViewName)
 	}
@@ -99,7 +99,7 @@ func (presenter JSONPresenter) Present(data interface{}) {
 	presenter.Writer.Write(response)
 }
 
-func (presenter HTMLPresenter) Present(data interface{}, metadata PresenterMetadata) {
+func (presenter HTMLPresenter) PresentWithMeta(data interface{}, metadata PresenterMetadata) {
 	presenter.Present(data)
 }
 
