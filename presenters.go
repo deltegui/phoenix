@@ -99,7 +99,7 @@ func (presenter JSONPresenter) Present(data interface{}) {
 	presenter.Writer.Write(response)
 }
 
-func (presenter HTMLPresenter) PresentWithMeta(data interface{}, metadata PresenterMetadata) {
+func (presenter JSONPresenter) PresentWithMeta(data interface{}, metadata PresenterMetadata) {
 	presenter.Present(data)
 }
 
