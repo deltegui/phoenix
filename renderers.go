@@ -19,7 +19,7 @@ type RenderMetadata struct {
 type Renderer interface {
 	Render(data interface{})
 	RenderWithMeta(data interface{}, metadata RenderMetadata)
-	RenderError()
+	RenderError(data error)
 }
 
 var templateEngine *template.Template = nil
@@ -89,7 +89,7 @@ type JSONRenderer struct {
 	Writer http.ResponseWriter
 }
 
-func (renderer JSONRenderer) Present(data interface{}) {
+func (renderer JSONRenderer) Render(data interface{}) {
 	response, err := json.Marshal(data)
 	if err != nil {
 		log.Println("Error marshaling data: ", err)
@@ -99,11 +99,11 @@ func (renderer JSONRenderer) Present(data interface{}) {
 	renderer.Writer.Write(response)
 }
 
-func (renderer JSONRenderer) PresentWithMeta(data interface{}, metadata RenderMetadata) {
-	renderer.Present(data)
+func (renderer JSONRenderer) RenderWithMeta(data interface{}, metadata RenderMetadata) {
+	renderer.Render(data)
 }
 
-func (presenter JSONRenderer) PresentError(caseError error) {
-	presenter.Writer.WriteHeader(http.StatusBadRequest)
-	presenter.Present(caseError)
+func (renderer JSONRenderer) RenderError(caseError error) {
+	renderer.Writer.WriteHeader(http.StatusBadRequest)
+	renderer.Render(caseError)
 }
