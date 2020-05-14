@@ -32,20 +32,17 @@ func getTemplateEngine() *template.Template {
 	return templateEngine
 }
 
+type HTMLMetadata struct {
+	ViewName string
+}
+
 type HTMLPresenter struct {
 	Writer http.ResponseWriter
 }
 
 func (presenter HTMLPresenter) Present(data interface{}) {
-	found := false
-	for skip := 3; skip > 1 && !found; skip-- {
-		view := viewNameFromCallerSkipping(skip)
-		log.Printf("Extracted view name: %s\n", view)
-		if presenter.render(view, data) {
-			found = true
-		}
-	}
-	if !found {
+	metadata := data.(HTMLMetadata)
+	if !presenter.render(metadata.ViewName, data) {
 		log.Fatalln("Cannot find your view")
 	}
 }
