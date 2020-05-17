@@ -1,4 +1,4 @@
-module github.com/deltegui/locomotive
+module github.com/deltegui/phoenix
 
 go 1.14
 

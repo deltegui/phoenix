@@ -1,30 +1,30 @@
-package locomotive
+package phoenix
 
-import "github.com/deltegui/locomotive/vars"
+import "github.com/deltegui/phoenix/vars"
 
-type LocomotiveConfig struct {}
+type PhoenixConfig struct{}
 
-func Configure() LocomotiveConfig {
-	return LocomotiveConfig{}
+func Configure() PhoenixConfig {
+	return PhoenixConfig{}
 }
 
-func(config LocomotiveConfig) SetProjectInfo(name string, version string) LocomotiveConfig {
+func (config PhoenixConfig) SetProjectInfo(name string, version string) PhoenixConfig {
 	vars.SetProjectName(name)
 	vars.SetProjectVersion(version)
 	return config
 }
 
-func(config LocomotiveConfig) EnableStaticServer() LocomotiveConfig {
+func (config PhoenixConfig) EnableStaticServer() PhoenixConfig {
 	vars.EnableStaticServer()
 	return config
 }
 
-func(config LocomotiveConfig) EnableTemplates() LocomotiveConfig {
+func (config PhoenixConfig) EnableTemplates() PhoenixConfig {
 	vars.EnableTemplates()
 	return config
 }
 
-func(config LocomotiveConfig) EnableLogoFile() LocomotiveConfig {
+func (config PhoenixConfig) EnableLogoFile() PhoenixConfig {
 	vars.EnableLogoFile()
 	return config
 }

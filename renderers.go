@@ -1,4 +1,4 @@
-package locomotive
+package phoenix
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/deltegui/locomotive/vars"
+	"github.com/deltegui/phoenix/vars"
 )
 
 type RenderMetadata struct {

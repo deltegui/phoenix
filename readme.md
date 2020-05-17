@@ -1,4 +1,4 @@
-# 🚂 Locomotive
+# 🐦 Locomotive
 Locomotive is a tiny library build on top of GO stdlib and Gorilla.Mux to simplify web project creation. Things that you get using locomotive:
 * Simple dependency injector.
 * Glue code for controllers and views.

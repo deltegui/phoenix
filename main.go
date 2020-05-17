@@ -1,4 +1,4 @@
-package locomotive
+package phoenix
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/deltegui/locomotive/vars"
+	"github.com/deltegui/phoenix/vars"
 	"github.com/gorilla/mux"
 )
 

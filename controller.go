@@ -1,4 +1,4 @@
-package locomotive
+package phoenix
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/deltegui/locomotive/injector"
+	"github.com/deltegui/phoenix/injector"
 
 	"github.com/gorilla/mux"
 )
