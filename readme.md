@@ -1,24 +1,24 @@
-# 🐦 Locomotive
-Locomotive is a tiny library build on top of GO stdlib and Gorilla.Mux to simplify web project creation. Things that you get using locomotive:
+# 🐦 Phoenix
+Phoenix is a tiny library build on top of GO stdlib and Gorilla.Mux to simplify web project creation. Things that you get using phoenix:
 * Simple dependency injector.
 * Glue code for controllers and views.
 
-It's recommended to use locomotive-cli to automate and boost 🚀 project creation and structure: https://github.com/deltegui/locomotive-cli.
+It's recommended to use phoenix-cli to automate and boost 🚀 project creation and structure: https://github.com/deltegui/phoenix-cli.
 
 ## Configuration
-You can configure Locomotive to fit your needs.
-Locomotive by default have disabled:
+You can configure phoenix to fit your needs.
+phoenix by default have disabled:
 
 * HTML template. You can't use HTMLPresenter.
 * Logo File.
 * Static server.
 
-And the project name and version will be "Locomotive" and "v0.1.0" by default.
+And the project name and version will be "phoenix" and "v0.1.0" by default.
 
-If you want to configure these options you can get a LocomotiveConfig struct, then you can change your project name and version and enable the other features:
+If you want to configure these options you can get a phoenixConfig struct, then you can change your project name and version and enable the other features:
 
 ```go
-locomotive.
+phoenix.
 	Configure().
 	SetProjectVersion("your project name", "your project version").
 	EnableLogoFile(). // It will search a file named "logo" inside your project root.
@@ -140,17 +140,17 @@ A handler builder is a wrapper over a http.HanlderFunc that provides dependencie
 ```go
 func Hello(name string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		r := locomotive.JSONRenderer{w}
+		r := phoenix.JSONRenderer{w}
 		r.Render(struct{ Name string }{name})
 	}
 }
 ```
 
-As you can see, it's just a wrapper for your simple handler. With that wrapper you can tell to the locomotive's DI system to inject anything you want.
+As you can see, it's just a wrapper for your simple handler. With that wrapper you can tell to the phoenix's DI system to inject anything you want.
 Now you can simply map that builder:
 
 ```go
-locomotive.Map(locomotive.Mapping{locomotive.Get, "/hello", Hello})
+phoenix.Map(phoenix.Mapping{phoenix.Get, "/hello", Hello})
 ```
 
 That use a Mapping struct, that looks like this:
@@ -163,25 +163,25 @@ type Mapping struct {
 }
 ```
 
-Or you can map in http GET and / endpoint using MapRoot (an alias of locomotive.Map(locomotive.Mapping{locomotive.Get, "", ...})):
+Or you can map in http GET and / endpoint using MapRoot (an alias of phoenix.Map(phoenix.Mapping{phoenix.Get, "", ...})):
 
 ```go
-locomotive.MapRoot(Hello)
+phoenix.MapRoot(Hello)
 ```
 
 Then you can run your server
 
 ```go
-locomotive.Run("localhost:3000")
+phoenix.Run("localhost:3000")
 ```
 
 If you want a bunch of handlers that have a part of the endpoint in common you can use MapGroup:
 
 ```go
-locomotive.MapGroup("/greetings", func(m locomotive.Mapper) {
+phoenix.MapGroup("/greetings", func(m phoenix.Mapper) {
 	m.MapController("/intendente", NewErrorController)
 	m.MapRoot(Hello)
-	m.Map(locomotive.Mapping{locomotive.Get, "/diego", HelloDiego})
+	m.Map(phoenix.Mapping{phoenix.Get, "/diego", HelloDiego})
 })
 ```
 
@@ -218,20 +218,20 @@ func (controller SensorController) GetSensorByName(w http.ResponseWriter, req *h
 func (controller SensorController) DeleteSensorByName(w http.ResponseWriter, req *http.Request) {...}
 func (controller SensorController) UpdateSensor(w http.ResponseWriter, req *http.Request) {...}
 func (controller SensorController) SensorNow(w http.ResponseWriter, req *http.Request) {...}
-func (controller SensorController) GetMappings() []locomotive.CMapping {
-	return []locomotive.CMapping{
-		{Method: locomotive.Post, Handler: controller.SaveSensor, Endpoint: ""},
-		{Method: locomotive.Get, Handler: controller.GetSensorByName, Endpoint: "/{name}"},
-		{Method: locomotive.Delete, Handler: controller.DeleteSensorByName, Endpoint: "/{name}"},
-		{Method: locomotive.Post, Handler: controller.UpdateSensor, Endpoint: "/update"},
-		{Method: locomotive.Get, Handler: controller.SensorNow, Endpoint: "/{name}/now"},
+func (controller SensorController) GetMappings() []phoenix.CMapping {
+	return []phoenix.CMapping{
+		{Method: phoenix.Post, Handler: controller.SaveSensor, Endpoint: ""},
+		{Method: phoenix.Get, Handler: controller.GetSensorByName, Endpoint: "/{name}"},
+		{Method: phoenix.Delete, Handler: controller.DeleteSensorByName, Endpoint: "/{name}"},
+		{Method: phoenix.Post, Handler: controller.UpdateSensor, Endpoint: "/update"},
+		{Method: phoenix.Get, Handler: controller.SensorNow, Endpoint: "/{name}/now"},
 	}
 }
 ```
-It's implementing the controller interface and returning mappings in it's GetMappings method. Then you can map that controller using locomotive's MapController:
+It's implementing the controller interface and returning mappings in it's GetMappings method. Then you can map that controller using phoenix's MapController:
 
 ```go
-locomotive.MapController("/sensor", NewSensorController)
+phoenix.MapController("/sensor", NewSensorController)
 ```
 
 Notice that you map a builder for your controller. If the builder takes parameters, ensure you have added builders for all of them to the injector.
@@ -239,13 +239,13 @@ Notice that you map a builder for your controller. If the builder takes paramete
 You can use MapRootController as an alias of Map("/", ...):
 
 ```go
-locomotive.MapRootController(NewSensorController)
+phoenix.MapRootController(NewSensorController)
 ```
 
-After all, you can run locomotive:
+After all, you can run phoenix:
 
 ```go
-locomotive.Run("localhost:3000")
+phoenix.Run("localhost:3000")
 ```
 
 And access your endpoints like *http://localhost:3000/sensor/hello/now*
@@ -274,28 +274,28 @@ type RenderMetadata struct {
 }
 ```
 
-Locomotive have two implementations of renderers: JSONRenderer and HTMLRenderer.
+phoenix have two implementations of renderers: JSONRenderer and HTMLRenderer.
 
 ### JSONRenderer
 Simply it renders your modelview as JSON. Here you have an example of use from a controller:
 
 ```go
 func (controller Controller) JSON(w http.ResponseWriter, req *http.Request) {
-	renderer := locomotive.JSONRenderer{w}
-	renderer.Render(struct{Name string}{"Locomotive"})
+	renderer := phoenix.JSONRenderer{w}
+	renderer.Render(struct{Name string}{"phoenix"})
 }
 ```
 
 ### HTMLRenderer
 The HTMLRenderer takes your ModelView and renders an HTML using go's templates.
 
-Firstly, you will need a place to put your templates. Well, go's templates in locomotive will search for your html templates here: "./templates/\*/\*.html". That means you must create in your project root a folder named "templates". Inside that folder it will expect a bunch of folders (you can have as many folders as you want, and with names you like), that must contain your template. So, if you want to render "userindex.html", you must have a folder inside templates which can have any name (let's take "user"), and inside it, your template "userindex.html" like this:
+Firstly, you will need a place to put your templates. Well, go's templates in phoenix will search for your html templates here: "./templates/\*/\*.html". That means you must create in your project root a folder named "templates". Inside that folder it will expect a bunch of folders (you can have as many folders as you want, and with names you like), that must contain your template. So, if you want to render "userindex.html", you must have a folder inside templates which can have any name (let's take "user"), and inside it, your template "userindex.html" like this:
 
 \<project root\>/templates/user/userindex.html
 
 Be careful naming your templates. If you create two templates with the same name in two distinct folders it will always render the first it finds. That's because it'll look for templates inside all subfolders.
 
 But how can I tell to the HTMLRenderer that I want to render userindex.html? There's two ways:
-* Calling Renderer.Render it'll automatically take the name of your method and downcase it. So, if the name of the method that calls the renderer is "UserIndex", HTMLRenderer will search for a template named "userindex.html". What happens if it found no template? It will try with the name of the callee of the method that called the renderer. If no template was found, it will try once again with the previous callee. Finally, if no template was found, it will fail. Why three times? To adapt the renderer to the project structure generated by locomotive-cli.
+* Calling Renderer.Render it'll automatically take the name of your method and downcase it. So, if the name of the method that calls the renderer is "UserIndex", HTMLRenderer will search for a template named "userindex.html". What happens if it found no template? It will try with the name of the callee of the method that called the renderer. If no template was found, it will try once again with the previous callee. Finally, if no template was found, it will fail. Why three times? To adapt the renderer to the project structure generated by phoenix-cli.
 
 * Calling Renderer.RenderWithMeta and passing a RenderMetadata with the view's name.
