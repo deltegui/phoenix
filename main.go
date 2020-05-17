@@ -12,8 +12,8 @@ import (
 
 func Run(listenURL string) {
 	printLogo()
-	createStaticServer(router)
-	showEndpoints(router)
+	createStaticServer(mainMapper.router)
+	showEndpoints(mainMapper.router)
 	startListening(listenURL)
 }
 

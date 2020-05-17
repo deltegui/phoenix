@@ -134,22 +134,75 @@ func NewSensorController(sensorRepo SensorRepo, validator Validator, reporter Re
 
 **NOTE:** Be careful creating a builder that take the same type that returns. It will create a infinite builder call and it will crash.
 
+## Handler Builder
+A handler builder is a wrapper over a http.HanlderFunc that provides dependencies to your handler. For example:
+
+```go
+func Hello(name string) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		r := locomotive.JSONRenderer{w}
+		r.Render(struct{ Name string }{name})
+	}
+}
+```
+
+As you can see, it's just a wrapper for your simple handler. With that wrapper you can tell to the locomotive's DI system to inject anything you want.
+Now you can simply map that builder:
+
+```go
+locomotive.Map(locomotive.Mapping{locomotive.Get, "/hello", Hello})
+```
+
+That use a Mapping struct, that looks like this:
+
+```go
+type Mapping struct {
+	Method   HTTPMethod
+	Endpoint string
+	Builder  injector.Builder
+}
+```
+
+Or you can map in http GET and / endpoint using MapRoot (an alias of locomotive.Map(locomotive.Mapping{locomotive.Get, "", ...})):
+
+```go
+locomotive.MapRoot(Hello)
+```
+
+Then you can run your server
+
+```go
+locomotive.Run("localhost:3000")
+```
+
+If you want a bunch of handlers that have a part of the endpoint in common you can use MapGroup:
+
+```go
+locomotive.MapGroup("/greetings", func(m locomotive.Mapper) {
+	m.MapController("/intendente", NewErrorController)
+	m.MapRoot(Hello)
+	m.Map(locomotive.Mapping{locomotive.Get, "/diego", HelloDiego})
+})
+```
+
+That will create the endpoints "/greetings", "/greetings/intendente" and "/greetings/diego"
+
 ## Controllers
 A Controller struct is anything that implements this interface:
 
 ```go
 type Controller interface {
-	GetMappings() []Mapping
+	GetMappings() []CMapping
 }
 ```
 
 Simply we have a method called GetMappings that returns mappings to your endpoints. A mapping is a struct that looks like this:
 
 ```go
-type Mapping struct {
-	Method HTTPMethod
-	Handler http.HandlerFunc
+type CMapping struct {
+	Method   HTTPMethod
 	Endpoint string
+	Handler  http.HandlerFunc
 }
 ```
 
@@ -165,8 +218,8 @@ func (controller SensorController) GetSensorByName(w http.ResponseWriter, req *h
 func (controller SensorController) DeleteSensorByName(w http.ResponseWriter, req *http.Request) {...}
 func (controller SensorController) UpdateSensor(w http.ResponseWriter, req *http.Request) {...}
 func (controller SensorController) SensorNow(w http.ResponseWriter, req *http.Request) {...}
-func (controller SensorController) GetMappings() []locomotive.Mapping {
-	return []locomotive.Mapping{
+func (controller SensorController) GetMappings() []locomotive.CMapping {
+	return []locomotive.CMapping{
 		{Method: locomotive.Post, Handler: controller.SaveSensor, Endpoint: ""},
 		{Method: locomotive.Get, Handler: controller.GetSensorByName, Endpoint: "/{name}"},
 		{Method: locomotive.Delete, Handler: controller.DeleteSensorByName, Endpoint: "/{name}"},
@@ -175,18 +228,18 @@ func (controller SensorController) GetMappings() []locomotive.Mapping {
 	}
 }
 ```
-It's implementing the controller interface and returning mappings in it's GetMappings method. Then you can map that controller using locomotive's Map:
+It's implementing the controller interface and returning mappings in it's GetMappings method. Then you can map that controller using locomotive's MapController:
 
 ```go
-locomotive.Map("/sensor", NewSensorController)
+locomotive.MapController("/sensor", NewSensorController)
 ```
 
 Notice that you map a builder for your controller. If the builder takes parameters, ensure you have added builders for all of them to the injector.
 
-You can use MapRoot as an alias of Map("/", ...):
+You can use MapRootController as an alias of Map("/", ...):
 
 ```go
-locomotive.MapRoot(NewSensorController)
+locomotive.MapRootController(NewSensorController)
 ```
 
 After all, you can run locomotive:
@@ -196,6 +249,9 @@ locomotive.Run("localhost:3000")
 ```
 
 And access your endpoints like *http://localhost:3000/sensor/hello/now*
+
+**NOTE:** Map, MapRoot, MapController and MapRootController always adds a trailing slash to your route. So the route "/enpoint" will create two mappings, one is
+"/endpoint" and the other "/endpoint/"
 
 ## Renderers
 So, now we have a way to wire all up and we have controllers too. How do we return something from our system, like HTML or JSON? With renderers.
