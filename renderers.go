@@ -41,7 +41,7 @@ func (renderer HTMLRenderer) Render(view string) {
 }
 
 func (renderer HTMLRenderer) RenderError(caseError error) {
-	renderer.Render("error.html", caseError)
+	renderer.RenderData("error.html", caseError)
 }
 
 func (renderer HTMLRenderer) renderTemplate(view string, data interface{}) bool {
