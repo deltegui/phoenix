@@ -35,7 +35,7 @@ func (renderer HTMLRenderer) RenderData(view string, data interface{}) {
 }
 
 func (renderer HTMLRenderer) Render(view string) {
-	if !renderer.renderTemplate(view, nil) {
+	if !renderer.renderTemplate(view, struct{}{}) {
 		log.Fatalf("Cannot find view with name: %s\n", view)
 	}
 }
@@ -45,9 +45,6 @@ func (renderer HTMLRenderer) RenderError(caseError error) {
 }
 
 func (renderer HTMLRenderer) renderTemplate(view string, data interface{}) bool {
-	if data == nil {
-		data = struct{}{}
-	}
 	if err := getTemplateEngine().ExecuteTemplate(renderer.Writer, view, data); err != nil {
 		log.Print("Error during rendering template: ")
 		log.Println(err)
