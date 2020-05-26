@@ -58,6 +58,12 @@ func (mapper Mapper) Map(mapping Mapping) {
 	mapper.cmap(CMapping{mapping.Method, mapping.Endpoint, controller})
 }
 
+func (mapper Mapper) MapAll(mappings []Mapping) {
+	for _, mapping := range mappings {
+		mapper.Map(mapping)
+	}
+}
+
 func (mapper Mapper) MapRoot(controllerBuilder injector.Builder) {
 	mapper.Map(Mapping{Get, "", controllerBuilder})
 }
@@ -89,6 +95,10 @@ var mainMapper Mapper = Mapper{mux.NewRouter()}
 
 func Map(mapping Mapping) {
 	mainMapper.Map(mapping)
+}
+
+func MapAll(mappings []Mapping) {
+	mainMapper.MapAll(mappings)
 }
 
 func MapRoot(controllerBuilder injector.Builder) {
