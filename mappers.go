@@ -27,31 +27,25 @@ const (
 
 // Mapping represent a HTTP mapping for a Builder.
 type Mapping struct {
-	Method      HTTPMethod
-	Endpoint    string
-	Builder     injector.Builder
-	middlewares []Middleware
-}
-
-func (mapping *Mapping) Use(middleware Middleware) *Mapping {
-	mapping.middlewares = append(mapping.middlewares, middleware)
-	return mapping
+	Method   HTTPMethod
+	Endpoint string
+	Builder  injector.Builder
 }
 
 type Mapper struct {
 	router *mux.Router
 }
 
-func (mapper Mapper) Map(mapping Mapping) {
+func (mapper Mapper) Map(mapping Mapping, middlewares ...Middleware) {
 	controller := injector.CallBuilder(mapping.Builder).(http.HandlerFunc)
 	if mapping.Endpoint == "404" {
 		mapper.router.NotFoundHandler = controller
 		return
 	}
-	mapsWithLog := append(mapping.middlewares, logMiddleware)
-	middlewares := createMiddlewareChainWith(mapsWithLog)
-	mapper.router.HandleFunc(mapping.Endpoint, middlewares(controller)).Methods(string(mapping.Method))
-	mapper.router.HandleFunc(fmt.Sprintf("%s/", mapping.Endpoint), middlewares(controller)).Methods(string(mapping.Method))
+	middlewares = append(middlewares, logMiddleware)
+	chain := createMiddlewareChainWith(middlewares)
+	mapper.router.HandleFunc(mapping.Endpoint, chain(controller)).Methods(string(mapping.Method))
+	mapper.router.HandleFunc(fmt.Sprintf("%s/", mapping.Endpoint), chain(controller)).Methods(string(mapping.Method))
 }
 
 func (mapper Mapper) MapAll(mappings []Mapping) {
