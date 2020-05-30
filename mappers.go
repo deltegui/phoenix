@@ -48,9 +48,9 @@ func (mapper Mapper) Map(mapping Mapping, middlewares ...Middleware) {
 	mapper.router.HandleFunc(fmt.Sprintf("%s/", mapping.Endpoint), chain(controller)).Methods(string(mapping.Method))
 }
 
-func (mapper Mapper) MapAll(mappings []Mapping) {
+func (mapper Mapper) MapAll(mappings []Mapping, middlewares ...Middleware) {
 	for _, mapping := range mappings {
-		mapper.Map(mapping)
+		mapper.Map(mapping, middlewares...)
 	}
 }
 

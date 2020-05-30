@@ -1,6 +1,7 @@
 package phoenix
 
 import (
+	"crypto/rand"
 	"log"
 	"net/http"
 
@@ -25,10 +26,19 @@ func (csrf csrfHandler) ServeHTTP(writer http.ResponseWriter, req *http.Request)
 }
 
 func NewCSRFMiddleware() Middleware {
-	CSRF := csrf.Protect([]byte("adfaf"))
+	CSRF := csrf.Protect(generateRandomBytes(32))
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return CSRF(csrfHandler{next}).ServeHTTP
 	}
+}
+
+func generateRandomBytes(n int) []byte {
+	bytes := make([]byte, n)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		log.Fatalln("Error creating CSRF auth key: ", err)
+	}
+	return bytes
 }
 
 func createMiddlewareChainWith(chain []Middleware) Middleware {

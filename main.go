@@ -16,12 +16,12 @@ var mainMapper Mapper = Mapper{
 	router: mux.NewRouter(),
 }
 
-func Map(mapping Mapping) {
-	mainMapper.Map(mapping)
+func Map(mapping Mapping, middlewares ...Middleware) {
+	mainMapper.Map(mapping, middlewares...)
 }
 
-func MapAll(mappings []Mapping) {
-	mainMapper.MapAll(mappings)
+func MapAll(mappings []Mapping, middlewares ...Middleware) {
+	mainMapper.MapAll(mappings, middlewares...)
 }
 
 func MapRoot(controllerBuilder injector.Builder) {
