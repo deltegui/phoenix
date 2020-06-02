@@ -32,7 +32,7 @@ func (config *PhoenixConfig) EnableLogoFile() PhoenixConfig {
 	return *config
 }
 
-func (config PhoenixConfig) FormatProjectInfo() string {
+func (config PhoenixConfig) formatProjectInfo() string {
 	return fmt.Sprintf("%s v%s\n", config.projectName, config.projectVersion)
 }
 

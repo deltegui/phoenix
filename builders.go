@@ -34,7 +34,7 @@ func (injector Injector) ShowAvailableBuilders() {
 
 // Get returns a builded dependency
 func (injector Injector) Get(name interface{}) interface{} {
-	return GetByType(reflect.TypeOf(name))
+	return injector.GetByType(reflect.TypeOf(name))
 }
 
 // GetByType returns a builded dependency identified by type
@@ -43,7 +43,7 @@ func (injector Injector) GetByType(name reflect.Type) interface{} {
 	if dependencyBuilder == nil {
 		log.Panicf("Builder not found for type %s\n", name)
 	}
-	return CallBuilder(dependencyBuilder)
+	return injector.CallBuilder(dependencyBuilder)
 }
 
 func (injector Injector) CallBuilder(builder Builder) interface{} {
@@ -54,7 +54,7 @@ func (injector Injector) CallBuilder(builder Builder) interface{} {
 		if impl == nil {
 			log.Panicf("Builder not found for type %s\n", builderType.In(i))
 		}
-		result := CallBuilder(impl)
+		result := injector.CallBuilder(impl)
 		inputs = append(inputs, reflect.ValueOf(result))
 	}
 	builderVal := reflect.ValueOf(builder)
@@ -74,7 +74,7 @@ func (injector Injector) PopulateStruct(userStruct interface{}) {
 	for i := 0; i < structValue.NumField(); i++ {
 		field := structValue.Field(i)
 		if field.IsValid() && field.CanSet() {
-			impl := GetByType(field.Type())
+			impl := injector.GetByType(field.Type())
 			field.Set(reflect.ValueOf(impl))
 		}
 	}

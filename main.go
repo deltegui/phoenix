@@ -27,7 +27,6 @@ func NewApp() App {
 			projectName:        "phoenix",
 			projectVersion:     "0.1.0",
 			enableStaticServer: false,
-			enableTemplates:    false,
 			logoFile:           "",
 		},
 		Injector: injector,
@@ -40,8 +39,8 @@ func (app App) Configure() PhoenixConfig {
 
 func (app App) Run(listenURL string) {
 	app.printLogo()
-	app.createStaticServer(mainMapper.router)
-	app.showEndpoints(mainMapper.router)
+	app.createStaticServer()
+	app.showEndpoints()
 	app.startListening(listenURL)
 }
 
@@ -67,7 +66,7 @@ func (app App) printLogo() {
 func (app App) startListening(address string) {
 	log.Println("Listening on address: ", address)
 	log.Println("You are ready to GO!")
-	if err := http.ListenAndServe(address, mainMapper.router); err != nil {
+	if err := http.ListenAndServe(address, app.Mapper.router); err != nil {
 		log.Fatalln("Error while listening: ", err)
 	}
 }
