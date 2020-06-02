@@ -11,7 +11,7 @@ import (
 )
 
 type App struct {
-	Mapper   Mapper
+	Mapper
 	config   *PhoenixConfig
 	Injector *Injector
 }
