@@ -12,7 +12,7 @@ import (
 
 type App struct {
 	Mapper   Mapper
-	config   PhoenixConfig
+	config   *PhoenixConfig
 	Injector *Injector
 }
 
@@ -23,7 +23,7 @@ func NewApp() App {
 			router:   mux.NewRouter(),
 			injector: injector,
 		},
-		config: PhoenixConfig{
+		config: &PhoenixConfig{
 			projectName:        "phoenix",
 			projectVersion:     "0.1.0",
 			enableStaticServer: false,
@@ -34,7 +34,7 @@ func NewApp() App {
 }
 
 func (app App) Configure() *PhoenixConfig {
-	return &app.config
+	return app.config
 }
 
 func (app App) Run(listenURL string) {
