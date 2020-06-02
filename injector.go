@@ -50,12 +50,8 @@ func (injector Injector) CallBuilder(builder Builder) interface{} {
 	var inputs []reflect.Value
 	builderType := reflect.TypeOf(builder)
 	for i := 0; i < builderType.NumIn(); i++ {
-		impl := injector.builders[builderType.In(i)]
-		if impl == nil {
-			log.Panicf("Builder not found for type %s\n", builderType.In(i))
-		}
-		result := injector.CallBuilder(impl)
-		inputs = append(inputs, reflect.ValueOf(result))
+		impl := injector.GetByType(builderType.In(i))
+		inputs = append(inputs, reflect.ValueOf(impl))
 	}
 	builderVal := reflect.ValueOf(builder)
 	builded := builderVal.Call(inputs)

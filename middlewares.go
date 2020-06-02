@@ -42,6 +42,7 @@ func generateRandomBytes(n int) []byte {
 }
 
 func createMiddlewareChainWith(chain []Middleware) Middleware {
+	chain = append(chain, logMiddleware)
 	return func(final http.HandlerFunc) http.HandlerFunc {
 		return func(writer http.ResponseWriter, req *http.Request) {
 			last := final
