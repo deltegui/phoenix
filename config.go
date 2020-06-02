@@ -16,20 +16,20 @@ type PhoenixConfig struct {
 	logoFile string
 }
 
-func (config *PhoenixConfig) SetProjectInfo(name string, version string) PhoenixConfig {
+func (config *PhoenixConfig) SetProjectInfo(name string, version string) *PhoenixConfig {
 	config.projectName = name
 	config.projectVersion = version
-	return *config
+	return config
 }
 
-func (config *PhoenixConfig) EnableStaticServer() PhoenixConfig {
+func (config *PhoenixConfig) EnableStaticServer() *PhoenixConfig {
 	config.enableStaticServer = true
-	return *config
+	return config
 }
 
-func (config *PhoenixConfig) EnableLogoFile() PhoenixConfig {
+func (config *PhoenixConfig) EnableLogoFile() *PhoenixConfig {
 	config.logoFile = "logo"
-	return *config
+	return config
 }
 
 func (config PhoenixConfig) formatProjectInfo() string {

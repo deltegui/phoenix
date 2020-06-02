@@ -33,8 +33,8 @@ func NewApp() App {
 	}
 }
 
-func (app App) Configure() PhoenixConfig {
-	return app.config
+func (app App) Configure() *PhoenixConfig {
+	return &app.config
 }
 
 func (app App) Run(listenURL string) {
