@@ -42,12 +42,12 @@ func (mapper Mapper) Map(mapping Mapping, middlewares ...Middleware) {
 		return
 	}
 	chain := createMiddlewareChainWith(middlewares)
-	mapper.mapMiddleware(mapping.Method, mapping.Endpoint, chain(controller))
+	mapper.mapHandlerFunc(mapping.Method, mapping.Endpoint, chain(controller))
 }
 
-func (mapper Mapper) mapMiddleware(method Method, endpoint string, middleware Middleware) {
-	mapper.router.HandleFunc(endpoint, middleware.Methods(string(method))
-	mapper.router.HandleFunc(fmt.Sprintf("%s/", endpoint), middleware).Methods(string(method))
+func (mapper Mapper) mapHandlerFunc(method HTTPMethod, endpoint string, handler http.HandlerFunc) {
+	mapper.router.HandleFunc(endpoint, handler).Methods(string(method))
+	mapper.router.HandleFunc(fmt.Sprintf("%s/", endpoint), handler).Methods(string(method))
 }
 
 func (mapper Mapper) buildController(builder Builder) http.HandlerFunc {
