@@ -5,8 +5,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-
-	"github.com/deltegui/phoenix/vars"
 )
 
 var templateEngine *template.Template = nil
@@ -15,17 +13,17 @@ func getTemplateEngine() *template.Template {
 	if templateEngine != nil {
 		return templateEngine
 	}
-	if vars.IsTemplatesEnabled() {
-		templateEngine = template.Must(template.New("html").ParseGlob("./templates/*/*.html"))
-		log.Printf("Template engine %s\n", templateEngine.DefinedTemplates())
-	} else {
-		log.Fatalln("Trying to get template engine when its disabled")
-	}
+	templateEngine = template.Must(template.New("html").ParseGlob("./templates/*/*.html"))
+	log.Printf("Template engine %s\n", templateEngine.DefinedTemplates())
 	return templateEngine
 }
 
 type HTMLRenderer struct {
 	Writer http.ResponseWriter
+}
+
+func NewHTMLRenderer(writer http.ResponseWriter) HTMLRenderer {
+	return HTMLRenderer{writer}
 }
 
 func (renderer HTMLRenderer) RenderData(view string, data interface{}) {
@@ -55,6 +53,10 @@ func (renderer HTMLRenderer) renderTemplate(view string, data interface{}) bool 
 
 type JSONRenderer struct {
 	Writer http.ResponseWriter
+}
+
+func NewJSONRenderer(writer http.ResponseWriter) JSONRenderer {
+	return JSONRenderer{writer}
 }
 
 func (renderer JSONRenderer) Render(data interface{}) {

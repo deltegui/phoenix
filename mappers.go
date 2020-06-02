@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/deltegui/phoenix/injector"
-
 	"github.com/gorilla/mux"
 )
 
@@ -29,15 +27,16 @@ const (
 type Mapping struct {
 	Method   HTTPMethod
 	Endpoint string
-	Builder  injector.Builder
+	Builder  Builder
 }
 
 type Mapper struct {
-	router *mux.Router
+	router   *mux.Router
+	injector *Injector
 }
 
 func (mapper Mapper) Map(mapping Mapping, middlewares ...Middleware) {
-	controller := injector.CallBuilder(mapping.Builder).(http.HandlerFunc)
+	controller := mapper.injector.CallBuilder(mapping.Builder).(http.HandlerFunc)
 	if mapping.Endpoint == "404" {
 		mapper.router.NotFoundHandler = controller
 		return
@@ -54,7 +53,7 @@ func (mapper Mapper) MapAll(mappings []Mapping, middlewares ...Middleware) {
 	}
 }
 
-func (mapper Mapper) MapRoot(controllerBuilder injector.Builder) {
+func (mapper Mapper) MapRoot(controllerBuilder Builder) {
 	mapper.Map(Mapping{
 		Method:   Get,
 		Endpoint: "",
@@ -64,6 +63,22 @@ func (mapper Mapper) MapRoot(controllerBuilder injector.Builder) {
 
 func (mapper Mapper) MapGroup(root string, createGroup func(mapper Mapper)) {
 	createGroup(mapper.subMapperFrom(root))
+}
+
+func (mapper Mapper) Get(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Get, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+
+func (mapper Mapper) Post(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Post, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+
+func (mapper Mapper) Delete(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Delete, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+
+func (mapper Mapper) Put(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Put, Endpoint: endpoint, Builder: builder}, middlewares...)
 }
 
 func (mapper Mapper) subMapperFrom(endpoint string) Mapper {

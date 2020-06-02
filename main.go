@@ -7,58 +7,64 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/deltegui/phoenix/injector"
-	"github.com/deltegui/phoenix/vars"
 	"github.com/gorilla/mux"
 )
 
-var mainMapper Mapper = Mapper{
-	router: mux.NewRouter(),
+type App struct {
+	Mapper   Mapper
+	config   PhoenixConfig
+	Injector *Injector
 }
 
-func Map(mapping Mapping, middlewares ...Middleware) {
-	mainMapper.Map(mapping, middlewares...)
+func NewApp() App {
+	injector := NewInjector()
+	return App{
+		Mapper: Mapper{
+			router:   mux.NewRouter(),
+			injector: injector,
+		},
+		config: PhoenixConfig{
+			projectName:        "phoenix",
+			projectVersion:     "0.1.0",
+			enableStaticServer: false,
+			enableTemplates:    false,
+			logoFile:           "",
+		},
+		Injector: injector,
+	}
 }
 
-func MapAll(mappings []Mapping, middlewares ...Middleware) {
-	mainMapper.MapAll(mappings, middlewares...)
+func (app App) Configure() PhoenixConfig {
+	return app.config
 }
 
-func MapRoot(controllerBuilder injector.Builder) {
-	mainMapper.MapRoot(controllerBuilder)
+func (app App) Run(listenURL string) {
+	app.printLogo()
+	app.createStaticServer(mainMapper.router)
+	app.showEndpoints(mainMapper.router)
+	app.startListening(listenURL)
 }
 
-func MapGroup(root string, createGroup func(mapper Mapper)) {
-	mainMapper.MapGroup(root, createGroup)
-}
-
-func Run(listenURL string) {
-	printLogo()
-	createStaticServer(mainMapper.router)
-	showEndpoints(mainMapper.router)
-	startListening(listenURL)
-}
-
-func createStaticServer(router *mux.Router) {
-	if vars.IsStaticServerEnabled() {
+func (app App) createStaticServer() {
+	if app.config.isStaticServerEnabled() {
 		s := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
-		router.PathPrefix("/static").Handler(s)
+		app.Mapper.router.PathPrefix("/static").Handler(s)
 		log.Println("Created static server!")
 	}
 }
 
-func printLogo() {
-	if vars.IsLogoFileEnabled() {
-		logo, err := ioutil.ReadFile(vars.GetLogoFilename())
+func (app App) printLogo() {
+	if app.config.isLogoFileEnabled() {
+		logo, err := ioutil.ReadFile(app.config.getLogoFilename())
 		if err != nil {
 			log.Fatalf("Cannot read logo file: %s\n", err)
 		}
 		fmt.Println(string(logo))
 	}
-	fmt.Print(vars.FormatProjectInfo())
+	fmt.Print(app.config.formatProjectInfo())
 }
 
-func startListening(address string) {
+func (app App) startListening(address string) {
 	log.Println("Listening on address: ", address)
 	log.Println("You are ready to GO!")
 	if err := http.ListenAndServe(address, mainMapper.router); err != nil {
@@ -66,12 +72,12 @@ func startListening(address string) {
 	}
 }
 
-func showEndpoints(router *mux.Router) {
+func (app App) showEndpoints() {
 	stringEndsWith := func(target, end string) bool {
 		return strings.LastIndex(target, end) == len(target)-1
 	}
 
-	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	app.Mapper.router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		path, err := route.GetPathTemplate()
 		if err != nil {
 			log.Println("Error while fetching route: ", err)
