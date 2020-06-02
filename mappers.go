@@ -83,6 +83,7 @@ func (mapper Mapper) Put(endpoint string, builder Builder, middlewares ...Middle
 
 func (mapper Mapper) subMapperFrom(endpoint string) Mapper {
 	return Mapper{
-		router: mapper.router.PathPrefix(endpoint).Subrouter(),
+		router:   mapper.router.PathPrefix(endpoint).Subrouter(),
+		injector: mapper.injector,
 	}
 }
