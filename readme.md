@@ -12,6 +12,35 @@ Phoenix is a tiny library build on top of GO stdlib, Gorilla.Mux, Gorilla.Sessio
 
 It's recommended to use phoenix-cli to automate and boost 🚀 project creation and structure: https://github.com/deltegui/phoenix-cli.
 
+## When to use phoenix?
+
+When you have a complex app or you would like to build it fast. Otherwise use go's stdlib.
+
+## Little Example
+
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/deltegui/phoenix"
+	"github.com/gorilla/mux"
+)
+
+func main() {
+	app := phoenix.NewApp()
+	app.Get("/hello/{name}", func() http.HandlerFunc {
+		return func(w http.ResponseWriter, req *http.Request) {
+			vars := mux.Vars(req)
+			fmt.Fprintf(w, "Hello %s", vars["name"])
+		}
+	})
+	app.Run("localhost:8080")
+}
+```
+
 ## Application
 Firstly, you can create an application.
 
