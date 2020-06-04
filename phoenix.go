@@ -1,13 +1,19 @@
 package phoenix
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 type App struct {
@@ -28,6 +34,11 @@ func NewApp() App {
 			projectVersion:     "0.1.0",
 			enableStaticServer: false,
 			logoFile:           "",
+			enableSessions:     false,
+			onStop:             func() {},
+			tlsCertFile:        "",
+			tlsKeyFile:         "",
+			domains:            nil,
 		},
 		Injector: injector,
 	}
@@ -38,6 +49,9 @@ func (app App) Configure() *PhoenixConfig {
 }
 
 func (app App) Run(listenURL string) {
+	if app.config.areSessionsEnabled() {
+		app.Injector.Add(createStoreBuilder())
+	}
 	app.printLogo()
 	app.createStaticServer()
 	app.showEndpoints()
@@ -64,11 +78,57 @@ func (app App) printLogo() {
 }
 
 func (app App) startListening(address string) {
-	log.Println("Listening on address: ", address)
+	server := &http.Server{
+		Addr:    address,
+		Handler: app.Mapper.router,
+	}
+	go app.startServer(server)
+	app.waitAndStopServer(server)
+}
+
+func (app App) startServer(server *http.Server) {
+	if app.config.isAutoHTTPSEnabled() {
+		m := &autocert.Manager{
+			Cache:      autocert.DirCache("golang-autocert"),
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(app.config.getAutoHTTPSDomains()...),
+		}
+		server.TLSConfig = m.TLSConfig()
+	}
+	log.Println("Listening on address: ", server.Addr)
 	log.Println("You are ready to GO!")
-	if err := http.ListenAndServe(address, app.Mapper.router); err != nil {
+	var err error
+	if app.config.isAutoHTTPSEnabled() {
+		err = server.ListenAndServeTLS("", "")
+	} else if app.config.isHTTPSEnabled() {
+		certFile, keyFile := app.config.getHTTPSCertKeyFiles()
+		err = server.ListenAndServeTLS(certFile, keyFile)
+	} else {
+		err = server.ListenAndServe()
+	}
+	if err != nil {
 		log.Fatalln("Error while listening: ", err)
 	}
+}
+
+func (app App) waitAndStopServer(server *http.Server) {
+	done := make(chan os.Signal)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	<-done
+
+	log.Print("Server Stopped")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	defer func() {
+		app.config.getStopHandler()()
+		cancel()
+	}()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Phoenix shutdown failed:%+v", err)
+	}
+
+	log.Print("Phoenix exited properly")
 }
 
 func (app App) showEndpoints() {

@@ -32,8 +32,8 @@ func NewCSRFMiddleware() Middleware {
 	}
 }
 
-func generateRandomBytes(n int) []byte {
-	bytes := make([]byte, n)
+func generateRandomBytes(length int) []byte {
+	bytes := make([]byte, length)
 	_, err := rand.Read(bytes)
 	if err != nil {
 		log.Fatalln("Error creating CSRF auth key: ", err)
