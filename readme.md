@@ -14,7 +14,7 @@ It's recommended to use phoenix-cli to automate and boost 🚀 project creation 
 
 ## When to use phoenix?
 
-When you have a complex app or you would like to build it fast. Otherwise use go's stdlib.
+When you feel that you are repeating "glue code" everytime you want to create a server in go. Otherwise use go's stdlib.
 
 ## Little Example
 
