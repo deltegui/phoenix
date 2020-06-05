@@ -67,7 +67,7 @@ func (renderer JSONPresenter) Present(data interface{}) {
 	renderer.Writer.Write(response)
 }
 
-func (renderer JSONPresenter) PresenterError(caseError error) {
+func (renderer JSONPresenter) PresentError(caseError error) {
 	renderer.Writer.WriteHeader(http.StatusBadRequest)
 	renderer.Present(caseError)
 }
