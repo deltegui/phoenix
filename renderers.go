@@ -13,36 +13,34 @@ func getTemplateEngine() *template.Template {
 	if templateEngine != nil {
 		return templateEngine
 	}
-	templateEngine = template.Must(template.New("html").ParseGlob("./templates/*/*.html"))
+	templateEngine = template.Must(template.New("html").ParseGlob("./templates/*.html"))
 	log.Printf("Template engine %s\n", templateEngine.DefinedTemplates())
 	return templateEngine
 }
 
-type HTMLRenderer struct {
+type HTMLPresenter struct {
 	Writer http.ResponseWriter
+	View   string
 }
 
-func NewHTMLRenderer(writer http.ResponseWriter) HTMLRenderer {
-	return HTMLRenderer{writer}
-}
-
-func (renderer HTMLRenderer) RenderData(view string, data interface{}) {
-	if !renderer.renderTemplate(view, data) {
-		log.Fatalf("Cannot find view with name: %s\n", view)
+func NewHTMLPresenter(writer http.ResponseWriter, view string) HTMLPresenter {
+	return HTMLPresenter{
+		Writer: writer,
+		View:   view,
 	}
 }
 
-func (renderer HTMLRenderer) Render(view string) {
-	if !renderer.renderTemplate(view, struct{}{}) {
-		log.Fatalf("Cannot find view with name: %s\n", view)
+func (renderer HTMLPresenter) Present(data interface{}) {
+	if !renderer.renderTemplate(renderer.View, data) {
+		log.Fatalf("Cannot find view with name: %s\n", renderer.View)
 	}
 }
 
-func (renderer HTMLRenderer) RenderError(caseError error) {
-	renderer.RenderData("error.html", caseError)
+func (renderer HTMLPresenter) PresentError(caseError error) {
+	renderer.renderTemplate("error.html", caseError)
 }
 
-func (renderer HTMLRenderer) renderTemplate(view string, data interface{}) bool {
+func (renderer HTMLPresenter) renderTemplate(view string, data interface{}) bool {
 	if err := getTemplateEngine().ExecuteTemplate(renderer.Writer, view, data); err != nil {
 		log.Print("Error during rendering template: ")
 		log.Println(err)
@@ -51,15 +49,15 @@ func (renderer HTMLRenderer) renderTemplate(view string, data interface{}) bool 
 	return true
 }
 
-type JSONRenderer struct {
+type JSONPresenter struct {
 	Writer http.ResponseWriter
 }
 
-func NewJSONRenderer(writer http.ResponseWriter) JSONRenderer {
-	return JSONRenderer{writer}
+func NewJSONPresenter(writer http.ResponseWriter) JSONPresenter {
+	return JSONPresenter{writer}
 }
 
-func (renderer JSONRenderer) Render(data interface{}) {
+func (renderer JSONPresenter) Present(data interface{}) {
 	response, err := json.Marshal(data)
 	if err != nil {
 		log.Println("Error marshaling data: ", err)
@@ -69,7 +67,7 @@ func (renderer JSONRenderer) Render(data interface{}) {
 	renderer.Writer.Write(response)
 }
 
-func (renderer JSONRenderer) RenderError(caseError error) {
+func (renderer JSONPresenter) PresenterError(caseError error) {
 	renderer.Writer.WriteHeader(http.StatusBadRequest)
-	renderer.Render(caseError)
+	renderer.Present(caseError)
 }

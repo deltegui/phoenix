@@ -49,9 +49,6 @@ func (app App) Configure() *PhoenixConfig {
 }
 
 func (app App) Run(listenURL string) {
-	if app.config.areSessionsEnabled() {
-		app.Injector.Add(createStoreBuilder())
-	}
 	app.printLogo()
 	app.createStaticServer()
 	app.showEndpoints()
