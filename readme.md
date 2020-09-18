@@ -207,7 +207,7 @@ A handler builder is a wrapper over a http.HanlderFunc that provides dependencie
 ```go
 func Hello(name string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		r := phoenix.JSONRenderer{w}
+		r := phoenix.JSONPresenter{w}
 		r.Render(struct{ Name string }{name})
 	}
 }
@@ -266,47 +266,46 @@ That will create the endpoints "/greetings", "/greetings/intendente" and "/greet
 
 **NOTE:** Map, MapRoot, Get, Delete, Post and Put always adds a trailing slash to your route. So the route "/enpoint" will create two mappings, one is "/endpoint" and the other "/endpoint/"
 
-## Renderers
-So, now we have a way to wire all up and we have controllers too. How do we return something from our system, like HTML or JSON? With renderers.
+## Presenters
+So, now we have a way to wire all up and we have controllers too. How do we return something from our system, like HTML or JSON? With presenters.
 
-### JSONRenderer
+### JSONPresenter
 Simply it renders your modelview as JSON. Here you have an example of use from a controller:
 
 ```go
 func (controller Controller) JSON(w http.ResponseWriter, req *http.Request) {
-	phoenix.NewJSONRenderer(w).Render(struct{Name string}{"phoenix"})
+	phoenix.NewJSONPresenter(w).Present(struct{Name string}{"phoenix"})
 }
 ```
 
-JSONRenderer have these methods:
+JSONPresenter have these methods:
 
 ```go
-Render(interface{})
-RenderError(error)
+Present(interface{})
+PresentError(error)
 ```
 
-### HTMLRenderer
-The HTMLRenderer takes your ModelView and renders an HTML using go's templates. You can use it like this:
+### HTMLPresenter
+The HTMLPresenter takes your ModelView and renders an HTML using go's templates. You can use it like this:
 
 ```go
 func (controller Controller) JSON(w http.ResponseWriter, req *http.Request) {
-	phoenix.NewHTMLRenderer(w).RenderData("hello.html", struct{Name string}{"phoenix"})
+	phoenix.NewHTMLPresenter(w, "hello.html").Present(struct{Name string}{"phoenix"})
 }
 ```
 
-HTMLRenderer have these methods:
+HTMLPresenter have these methods:
 
 ```go
-RenderData(view string, data interface{})
-Render(view string)
-RenderError(error) // Equals to RenderData("error.html", error)
+Present(data interface{})
+PresentError(error)
 ```
 
-Firstly, you will need a place to put your templates. Well, go's templates in phoenix will search for your html templates here: "./templates/\*/\*.html". That means you must create in your project root a folder named "templates". Inside that folder it will expect a bunch of folders (you can have as many folders as you want, and with names you like), that must contain your template. So, if you want to render "userindex.html", you must have a folder inside templates which can have any name (let's take "user"), and inside it, your template "userindex.html" like this:
+Firstly, you will need a place to put your templates. Well, go's templates in phoenix will search for your html templates here: "./templates/\*/\*.html". That means you must create in your project root a folder named "templates". Inside that folder it will expect a bunch of folders (you can have as many folders as you want, and with names you like), that must contain your template. So, if you want to present "userindex.html", you must have a folder inside templates which can have any name (let's take "user"), and inside it, your template "userindex.html" like this:
 
 \<project root\>/templates/user/userindex.html
 
-Be careful naming your templates. If you create two templates with the same name in two distinct folders it will always render the first it finds. That's because it'll look for templates inside all subfolders.
+Be careful naming your templates. If you create two templates with the same name in two distinct folders it will always presents the first it finds. That's because it'll look for templates inside all subfolders.
 
 ## CSRF
 
@@ -316,11 +315,11 @@ To use the csrf middleware simply add it to the route
 app.Get("/hello", Hello, phoenix.NewCSRFMiddleware())
 ```
 
-Then you can render your HTML view like this:
+Then you can present your HTML view like this:
 
 ```go
 ...
-phoenix.NewHTMLRenderer.RenderData("userindex.html", map[string]interface{}{
+phoenix.NewHTMLPresenter(w, "userindex.html").Present(map[string]interface{}{
 	csrf.TemplateTag: csrf.TemplateField(req),
 })
 ...
