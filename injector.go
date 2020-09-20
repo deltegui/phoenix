@@ -6,13 +6,20 @@ import (
 )
 
 // Builder is a function that expects nothing and retuns
-// the type that builds. It's represented as interface.
+// the type that builds. The type cant be func() interface{}
+// cause some errors appears in runtime. So it's represented
+// as an interface.
 type Builder interface{}
 
+// Injector is an automated dependency injector inspired in Sping's
+// DI. It will detect which builder to call using its return type.
+// If the builder haver params, it will fullfill that params calling
+// other builders that provides its types.
 type Injector struct {
 	builders map[reflect.Type]Builder
 }
 
+// NewInjector with default values
 func NewInjector() *Injector {
 	return &Injector{
 		builders: make(map[reflect.Type]Builder),
@@ -46,6 +53,8 @@ func (injector Injector) GetByType(name reflect.Type) interface{} {
 	return injector.CallBuilder(dependencyBuilder)
 }
 
+// CallBuilder injecting all parameters with provided builders. If some parameter
+// type cannot be found, it will panic
 func (injector Injector) CallBuilder(builder Builder) interface{} {
 	var inputs []reflect.Value
 	builderType := reflect.TypeOf(builder)

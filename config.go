@@ -2,6 +2,9 @@ package phoenix
 
 import "fmt"
 
+// PhoenixConfig stores all project configurations.
+// It's a struct instead of global variables because
+// it's stored in app instance.
 type PhoenixConfig struct {
 	// name of your project
 	projectName string
