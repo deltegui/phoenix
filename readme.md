@@ -54,6 +54,7 @@ Then you can access:
 * Dependency Injector container throught ```app.Injector```
 * App's config calling ```app.Configure()```
 * Start server calling ```app.Run("localhost:8080")```
+* Mapping methods
 
 ## Configuration
 You can configure phoenix to fit your needs.
