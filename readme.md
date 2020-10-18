@@ -1,12 +1,9 @@
 # 🐦 Phoenix
-Phoenix is a tiny library build on top of GO stdlib, Gorilla.Mux, Gorilla.Sessions and autocert to simplify web project creation. Things that you get using phoenix:
+Phoenix is a tiny library build on top of GO stdlib and Gorilla.Mux to simplify web project creation. Things that you get using phoenix:
 * Simple dependency injector.
 * Glue code for controllers.
 * Ready to use HTML and JSON renderers.
-* Available HTTPS connection using cert.pem and key.pem or using autocert.
-* Sessions.
 * Middlewares.
-* CSRF middleware.
 * Startup ASCII logo support.
 * Gracefully server stop.
 
@@ -62,8 +59,6 @@ phoenix by default have disabled:
 
 * Logo File.
 * Static server.
-* Sessions.
-* HTTPS.
 
 And the project name and version will be "phoenix" and "v0.1.0" by default.
 
@@ -74,11 +69,8 @@ app.Configure().
 	SetProjectVersion("your project name", "your project version").
 	EnableLogoFile(). // It will search a file named "logo" inside your project root.
 	EnableStaticServer(). // It will serve static files that are inside /static.
-	EnableSessions(). // It will enable sessions. sessions.Store will be available to inject into your controllers.
-	SetStopHandler(func() {...}). // Set the function to be called when server is stopping.
-	UseHTTPS("cert", "key"). // Enable HTTPS using cert and key.
-	UseAutoHTTPS("example.com", "www.example.com", ...). // Alternative to UseHTTPS that uses let's encrypt with autocert
-
+	StopHook(func() {...}). // Set the function to be called when server is stopping.
+	StartHook(func(*http.Server) error) // Use this to customize ListenAndServe (for example, using https)
 ```
 
 ## Dependency Injection API
@@ -307,46 +299,3 @@ Firstly, you will need a place to put your templates. Well, go's templates in ph
 \<project root\>/templates/user/userindex.html
 
 Be careful naming your templates. If you create two templates with the same name in two distinct folders it will always presents the first it finds. That's because it'll look for templates inside all subfolders.
-
-## CSRF
-
-To use the csrf middleware simply add it to the route
-
-```go
-app.Get("/hello", Hello, phoenix.NewCSRFMiddleware())
-```
-
-Then you can present your HTML view like this:
-
-```go
-...
-phoenix.NewHTMLPresenter(w, "userindex.html").Present(map[string]interface{}{
-	csrf.TemplateTag: csrf.TemplateField(req),
-})
-...
-```
-
-And inside your view you can render the CSRF token using ```{{.csrfField}}```
-
-Everytime you create a CSRF middleware a new secret key is created.
-
-## Sessions
-
-To use sessions you have to enable it:
-
-```go
-app.Configure().EnableSessions()
-
-```
-
-Then you can add sessions.Store (gorilla.Sessions) as a parameter inside your controller and it will be automatically injected:
-
-```go
-func Hello(session sessions.Store) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		...
-	}
-}
-```
-
-The cookie key will be generated and stored inside a file called ```cookie.key``` the first time you enable sessions. Later the phoenix will try to read the key from that file. It's recommended not to commit ```cookie.key```

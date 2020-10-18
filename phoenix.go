@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/acme/autocert"
 )
 
 type App struct {
@@ -34,11 +33,8 @@ func NewApp() App {
 			projectVersion:     "0.1.0",
 			enableStaticServer: false,
 			logoFile:           "",
-			enableSessions:     false,
 			onStop:             func() {},
-			tlsCertFile:        "",
-			tlsKeyFile:         "",
-			domains:            nil,
+			onStart:            func(server *http.Server) error { return server.ListenAndServe() },
 		},
 		Injector: injector,
 	}
@@ -65,7 +61,7 @@ func (app App) createStaticServer() {
 
 func (app App) printLogo() {
 	if app.config.isLogoFileEnabled() {
-		logo, err := ioutil.ReadFile(app.config.getLogoFilename())
+		logo, err := ioutil.ReadFile(app.config.logoFile)
 		if err != nil {
 			log.Fatalf("Cannot read logo file: %s\n", err)
 		}
@@ -84,25 +80,9 @@ func (app App) startListening(address string) {
 }
 
 func (app App) startServer(server *http.Server) {
-	if app.config.isAutoHTTPSEnabled() {
-		m := &autocert.Manager{
-			Cache:      autocert.DirCache("golang-autocert"),
-			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist(app.config.getAutoHTTPSDomains()...),
-		}
-		server.TLSConfig = m.TLSConfig()
-	}
 	log.Println("Listening on address: ", server.Addr)
 	log.Println("You are ready to GO!")
-	var err error
-	if app.config.isAutoHTTPSEnabled() {
-		err = server.ListenAndServeTLS("", "")
-	} else if app.config.isHTTPSEnabled() {
-		certFile, keyFile := app.config.getHTTPSCertKeyFiles()
-		err = server.ListenAndServeTLS(certFile, keyFile)
-	} else {
-		err = server.ListenAndServe()
-	}
+	err := app.config.onStart(server)
 	if err != nil {
 		log.Fatalln("Error while listening: ", err)
 	}
@@ -117,7 +97,7 @@ func (app App) waitAndStopServer(server *http.Server) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	defer func() {
-		app.config.getStopHandler()()
+		app.config.onStop()
 		cancel()
 	}()
 
