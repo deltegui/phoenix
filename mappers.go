@@ -31,8 +31,9 @@ type Mapping struct {
 }
 
 type Mapper struct {
-	router   *mux.Router
-	injector *Injector
+	router             *mux.Router
+	generalMiddlewares []Middleware
+	injector           *Injector
 }
 
 func (mapper Mapper) Map(mapping Mapping, middlewares ...Middleware) {
@@ -41,7 +42,8 @@ func (mapper Mapper) Map(mapping Mapping, middlewares ...Middleware) {
 		mapper.router.NotFoundHandler = controller
 		return
 	}
-	chain := createMiddlewareChainWith(middlewares)
+	allMiddlewares := append(mapper.generalMiddlewares, middlewares...)
+	chain := createMiddlewareChainWith(allMiddlewares)
 	mapper.mapHandlerFunc(mapping.Method, mapping.Endpoint, chain(controller))
 }
 
@@ -79,6 +81,10 @@ func (mapper Mapper) subMapperFrom(endpoint string) Mapper {
 	}
 }
 
+func (mapper *Mapper) Use(middlewares ...Middleware) {
+	mapper.generalMiddlewares = append(mapper.generalMiddlewares, middlewares...)
+}
+
 func (mapper Mapper) Get(endpoint string, builder Builder, middlewares ...Middleware) {
 	mapper.Map(Mapping{Method: Get, Endpoint: endpoint, Builder: builder}, middlewares...)
 }
@@ -91,6 +97,25 @@ func (mapper Mapper) Delete(endpoint string, builder Builder, middlewares ...Mid
 	mapper.Map(Mapping{Method: Delete, Endpoint: endpoint, Builder: builder}, middlewares...)
 }
 
+func (mapper Mapper) Head(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Head, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+
 func (mapper Mapper) Put(endpoint string, builder Builder, middlewares ...Middleware) {
 	mapper.Map(Mapping{Method: Put, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+
+func (mapper Mapper) Connect(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Connect, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+
+func (mapper Mapper) Options(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Options, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+func (mapper Mapper) Trace(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Trace, Endpoint: endpoint, Builder: builder}, middlewares...)
+}
+
+func (mapper Mapper) Patch(endpoint string, builder Builder, middlewares ...Middleware) {
+	mapper.Map(Mapping{Method: Patch, Endpoint: endpoint, Builder: builder}, middlewares...)
 }
