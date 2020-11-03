@@ -31,7 +31,6 @@ func NewHTMLPresenter(writer http.ResponseWriter, view string) HTMLPresenter {
 }
 
 func (renderer HTMLPresenter) Present(data interface{}) {
-	renderer.Writer.WriteHeader(http.StatusOK)
 	if !renderer.renderTemplate(renderer.View, data) {
 		log.Fatalf("Cannot find view with name: %s\n", renderer.View)
 	}
@@ -64,12 +63,12 @@ func (renderer JSONPresenter) Present(data interface{}) {
 		log.Println("Error marshaling data: ", err)
 		return
 	}
-	renderer.Writer.WriteHeader(http.StatusOK)
 	renderer.Writer.Header().Add("Content-Type", "application/json")
 	renderer.Writer.Write(response)
 }
 
 func (renderer JSONPresenter) PresentError(caseError error) {
 	renderer.Writer.WriteHeader(http.StatusBadRequest)
+	renderer.Writer.Header().Add("Content-Type", "application/json")
 	renderer.Present(caseError)
 }
