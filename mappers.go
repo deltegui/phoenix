@@ -76,8 +76,9 @@ func (mapper Mapper) MapGroup(root string, createGroup func(mapper Mapper)) {
 
 func (mapper Mapper) subMapperFrom(endpoint string) Mapper {
 	return Mapper{
-		router:   mapper.router.PathPrefix(endpoint).Subrouter(),
-		injector: mapper.injector,
+		router:             mapper.router.PathPrefix(endpoint).Subrouter(),
+		generalMiddlewares: mapper.generalMiddlewares,
+		injector:           mapper.injector,
 	}
 }
 
