@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func CreateStaticServer() {
+func CreateStaticServer() http.Handler {
 	return http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
 }
 
@@ -33,13 +33,12 @@ func WaitAndStopServer(server *http.Server) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	defer func() {
-		app.config.onStop()
 		cancel()
 	}()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("Phoenix shutdown failed:%+v", err)
+		log.Fatalf("Server shutdown failed:%+v", err)
 	}
 
-	log.Print("Phoenix exited properly")
+	log.Print("Server exited properly")
 }
