@@ -16,7 +16,7 @@ func CreateStaticServer() {
 	return http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
 }
 
-func PrintLogo(logoFile) {
+func PrintLogo(logoFile string) {
 	logo, err := ioutil.ReadFile(logoFile)
 	if err != nil {
 		log.Fatalf("Cannot read logo file: %s\n", err)
