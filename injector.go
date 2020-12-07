@@ -2,6 +2,7 @@ package phoenix
 
 import (
 	"log"
+	"net/http"
 	"reflect"
 )
 
@@ -51,6 +52,11 @@ func (injector Injector) GetByType(name reflect.Type) interface{} {
 		log.Panicf("Builder not found for type %s\n", name)
 	}
 	return injector.CallBuilder(dependencyBuilder)
+}
+
+// ResolveHandler created by a builder
+func (injector Injector) ResolveHandler(builder Builder) http.HandlerFunc {
+	return injector.CallBuilder(builder).(http.HandlerFunc)
 }
 
 // CallBuilder injecting all parameters with provided builders. If some parameter
