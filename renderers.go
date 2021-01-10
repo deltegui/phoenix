@@ -21,7 +21,7 @@ func formatViewName(view string) string {
 	return fmt.Sprintf("%s.html", view)
 }
 
-func BuildPresenter(writer http.ResponseWriter, req *http.Request, view string) HTMLPresenter {
+func NewHTMLPresenter(writer http.ResponseWriter, req *http.Request, view string) HTMLPresenter {
 	realView := formatViewName(view)
 	return HTMLPresenter{
 		Writer:    writer,
@@ -31,7 +31,7 @@ func BuildPresenter(writer http.ResponseWriter, req *http.Request, view string) 
 	}
 }
 
-func BuildPresenterWithErr(writer http.ResponseWriter, req *http.Request, view string, errView string) HTMLPresenter {
+func NewHTMLPresenterWithErrView(writer http.ResponseWriter, req *http.Request, view string, errView string) HTMLPresenter {
 	return HTMLPresenter{
 		Writer:    writer,
 		Request:   req,
