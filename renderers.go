@@ -2,62 +2,63 @@ package phoenix
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 )
 
-var templateEngine *template.Template = nil
+var templateEngine *template.Template = createTemplates()
 
-func getTemplateEngine() *template.Template {
-	if templateEngine != nil {
-		return templateEngine
-	}
-	templateEngine = template.Must(template.New("html").ParseGlob("./templates/**/*.html"))
+func createTemplates() *template.Template {
+	pattern := "./templates/**/*.html"
+	templateEngine := template.Must(template.New("html").ParseGlob(pattern))
 	log.Printf("Template engine%s\n", templateEngine.DefinedTemplates())
 	return templateEngine
 }
 
+func formatViewName(view string) string {
+	return fmt.Sprintf("%s.html", view)
+}
+
+func BuildPresenter(writer http.ResponseWriter, req *http.Request, view string) HTMLPresenter {
+	realView := formatViewName(view)
+	return HTMLPresenter{
+		Writer:    writer,
+		Request:   req,
+		View:      realView,
+		ErrorView: realView,
+	}
+}
+
+func BuildPresenterWithErr(writer http.ResponseWriter, req *http.Request, view string, errView string) HTMLPresenter {
+	return HTMLPresenter{
+		Writer:    writer,
+		Request:   req,
+		View:      formatViewName(view),
+		ErrorView: formatViewName(errView),
+	}
+}
+
 type HTMLPresenter struct {
 	Writer    http.ResponseWriter
+	Request   *http.Request
 	View      string
 	ErrorView string
 }
 
-func NewHTMLPresenter(writer http.ResponseWriter, view string) HTMLPresenter {
-	return HTMLPresenter{
-		Writer:    writer,
-		View:      view,
-		ErrorView: view,
-	}
-}
-
-func NewHTMLPresenterWithErrView(writer http.ResponseWriter, view string, errView string) HTMLPresenter {
-	return HTMLPresenter{
-		Writer:    writer,
-		View:      view,
-		ErrorView: errView,
-	}
-}
-
 func (renderer HTMLPresenter) Present(data interface{}) {
-	if !renderer.renderTemplate(renderer.View, map[string]interface{}{
-		"haveErrors": false,
-		"data":       data,
-	}) {
+	if !renderer.RenderTemplate(renderer.View, data) {
 		log.Fatalf("Cannot find view with name: %s\n", renderer.View)
 	}
 }
 
 func (renderer HTMLPresenter) PresentError(caseError error) {
-	renderer.renderTemplate(renderer.ErrorView, map[string]interface{}{
-		"haveErrors": true,
-		"err":        caseError,
-	})
+	renderer.RenderTemplate("error.html", caseError)
 }
 
-func (renderer HTMLPresenter) renderTemplate(view string, data interface{}) bool {
-	if err := getTemplateEngine().ExecuteTemplate(renderer.Writer, view, data); err != nil {
+func (renderer HTMLPresenter) RenderTemplate(view string, data interface{}) bool {
+	if err := templateEngine.ExecuteTemplate(renderer.Writer, view, data); err != nil {
 		log.Print("Error during rendering template: ")
 		log.Println(err)
 		return false
