@@ -13,7 +13,7 @@ func getTemplateEngine() *template.Template {
 	if templateEngine != nil {
 		return templateEngine
 	}
-	templateEngine = template.Must(template.New("html").ParseGlob("./templates/**.html"))
+	templateEngine = template.Must(template.New("html").ParseGlob("./templates/**/*.html"))
 	log.Printf("Template engine %s\n", templateEngine.DefinedTemplates())
 	return templateEngine
 }
