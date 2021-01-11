@@ -8,9 +8,7 @@ import (
 	"net/http"
 )
 
-var templateEngine *template.Template = createTemplates()
-
-func createTemplates() *template.Template {
+func CreateTemplates() *template.Template {
 	pattern := "./templates/**/*.html"
 	templateEngine := template.Must(template.New("html").ParseGlob(pattern))
 	log.Printf("Template engine%s\n", templateEngine.DefinedTemplates())
@@ -21,7 +19,7 @@ func formatViewName(view string) string {
 	return fmt.Sprintf("%s.html", view)
 }
 
-func NewHTMLPresenter(writer http.ResponseWriter, req *http.Request, view string) HTMLPresenter {
+func NewHTMLPresenter(writer http.ResponseWriter, req *http.Request, templates *template.Template, view string) HTMLPresenter {
 	realView := formatViewName(view)
 	return HTMLPresenter{
 		Writer:    writer,
@@ -31,7 +29,7 @@ func NewHTMLPresenter(writer http.ResponseWriter, req *http.Request, view string
 	}
 }
 
-func NewHTMLPresenterWithErrView(writer http.ResponseWriter, req *http.Request, view string, errView string) HTMLPresenter {
+func NewHTMLPresenterWithErrView(writer http.ResponseWriter, req *http.Request, templates *template.Template, view string, errView string) HTMLPresenter {
 	return HTMLPresenter{
 		Writer:    writer,
 		Request:   req,
@@ -43,6 +41,7 @@ func NewHTMLPresenterWithErrView(writer http.ResponseWriter, req *http.Request, 
 type HTMLPresenter struct {
 	Writer    http.ResponseWriter
 	Request   *http.Request
+	Templates *template.Template
 	View      string
 	ErrorView string
 }
@@ -58,7 +57,7 @@ func (renderer HTMLPresenter) PresentError(caseError error) {
 }
 
 func (renderer HTMLPresenter) RenderTemplate(view string, data interface{}) bool {
-	if err := templateEngine.ExecuteTemplate(renderer.Writer, view, data); err != nil {
+	if err := renderer.Templates.ExecuteTemplate(renderer.Writer, view, data); err != nil {
 		log.Print("Error during rendering template: ")
 		log.Println(err)
 		return false
