@@ -8,58 +8,20 @@ import (
 	"net/http"
 )
 
-func CreateTemplates() *template.Template {
+var templates *template.Template
+
+func CreateTemplates() {
 	pattern := "./templates/**/*.html"
-	templateEngine := template.Must(template.New("html").ParseGlob(pattern))
-	log.Printf("Template engine%s\n", templateEngine.DefinedTemplates())
-	return templateEngine
+	templates = template.Must(template.New("html").ParseGlob(pattern))
+	log.Printf("Template engine%s\n", templates.DefinedTemplates())
 }
 
 func formatViewName(view string) string {
 	return fmt.Sprintf("%s.html", view)
 }
 
-func NewHTMLPresenter(writer http.ResponseWriter, req *http.Request, templates *template.Template, view string) HTMLPresenter {
-	realView := formatViewName(view)
-	return HTMLPresenter{
-		Writer:    writer,
-		Request:   req,
-		Templates: templates,
-		View:      realView,
-		ErrorView: realView,
-	}
-}
-
-func NewHTMLPresenterWithErrView(writer http.ResponseWriter, req *http.Request, templates *template.Template, view string, errView string) HTMLPresenter {
-	return HTMLPresenter{
-		Writer:    writer,
-		Request:   req,
-		Templates: templates,
-		View:      formatViewName(view),
-		ErrorView: formatViewName(errView),
-	}
-}
-
-type HTMLPresenter struct {
-	Writer    http.ResponseWriter
-	Request   *http.Request
-	Templates *template.Template
-	View      string
-	ErrorView string
-}
-
-func (renderer HTMLPresenter) Present(data interface{}) {
-	if !renderer.RenderTemplate(renderer.View, data) {
-		log.Fatalf("Cannot find view with name: %s\n", renderer.View)
-	}
-}
-
-func (renderer HTMLPresenter) PresentError(caseError error) {
-	renderer.RenderTemplate("error.html", caseError)
-}
-
-func (renderer HTMLPresenter) RenderTemplate(view string, data interface{}) bool {
-	if err := renderer.Templates.ExecuteTemplate(renderer.Writer, view, data); err != nil {
+func RenderTemplate(w http.ResponseWriter, view string, data interface{}) bool {
+	if err := templates.ExecuteTemplate(w, formatViewName(view), data); err != nil {
 		log.Print("Error during rendering template: ")
 		log.Println(err)
 		return false
