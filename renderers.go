@@ -24,6 +24,7 @@ func NewHTMLPresenter(writer http.ResponseWriter, req *http.Request, templates *
 	return HTMLPresenter{
 		Writer:    writer,
 		Request:   req,
+		Templates: templates,
 		View:      realView,
 		ErrorView: realView,
 	}
@@ -33,6 +34,7 @@ func NewHTMLPresenterWithErrView(writer http.ResponseWriter, req *http.Request, 
 	return HTMLPresenter{
 		Writer:    writer,
 		Request:   req,
+		Templates: templates,
 		View:      formatViewName(view),
 		ErrorView: formatViewName(errView),
 	}
