@@ -34,8 +34,8 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	})
 }
 
-func FileServerStatic(r chi.Router) {
-	FileServer(r, "/static", http.Dir("./static/"))
+func FileServerStatic(r chi.Router, path string) {
+	FileServer(r, path, http.Dir(path))
 }
 
 func PrintLogo(logoFile string) {
