@@ -15,6 +15,8 @@ import (
 	"github.com/go-chi/chi"
 )
 
+// FileServer creates using a router, a url path and a file path
+// a file server.
 func FileServer(r chi.Router, path string, root http.FileSystem) {
 	if strings.ContainsAny(path, "{}*") {
 		panic("FileServer does not permit any URL parameters.")
@@ -34,10 +36,14 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	})
 }
 
+// FileServerStatic creates a file server with your desired path
+// a file server that serves files in ./static folder.
 func FileServerStatic(r chi.Router, path string) {
 	FileServer(r, path, http.Dir("./static"))
 }
 
+// PrintLogo takes a file path and prints your fancy ascii logo.
+// It will fail if your file is not found.
 func PrintLogo(logoFile string) {
 	logo, err := ioutil.ReadFile(logoFile)
 	if err != nil {
@@ -46,6 +52,7 @@ func PrintLogo(logoFile string) {
 	fmt.Println(string(logo))
 }
 
+// WaitAndStopServer gives you a way to gracefully stop your server.
 func WaitAndStopServer(server *http.Server) {
 	done := make(chan os.Signal)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
