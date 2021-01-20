@@ -57,7 +57,7 @@ func (renderer JSONPresenter) Present(data interface{}) {
 		log.Println("Error marshaling data: ", err)
 		return
 	}
-	renderer.Writer.Header().Add("Content-Type", "application/json")
+	renderer.Writer.Header().Set("Content-Type", "application/json")
 	renderer.Writer.Write(response)
 }
 
