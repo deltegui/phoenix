@@ -39,7 +39,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 // FileServerStatic creates a file server with your desired path
 // a file server that serves files in ./static folder.
 func FileServerStatic(r chi.Router, path string) {
-	FileServer(r, path, http.Dir("./static"))
+	FileServer(r, path, http.Dir("./static/"))
 }
 
 // PrintLogo takes a file path and prints your fancy ascii logo.
