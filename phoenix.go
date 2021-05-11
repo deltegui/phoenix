@@ -12,12 +12,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 // FileServer creates using a router, a url path and a file path
 // a file server.
-func FileServer(r chi.Router, path string, root http.FileSystem) {
+func FileServer(r *chi.Mux, path string, root http.FileSystem) {
 	if strings.ContainsAny(path, "{}*") {
 		panic("FileServer does not permit any URL parameters.")
 	}
@@ -38,7 +38,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 
 // FileServerStatic creates a file server with your desired path
 // a file server that serves files in ./static folder.
-func FileServerStatic(r chi.Router, path string) {
+func FileServerStatic(r *chi.Mux, path string) {
 	FileServer(r, path, http.Dir("./static/"))
 }
 
