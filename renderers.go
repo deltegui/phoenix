@@ -3,41 +3,53 @@ package phoenix
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
+	"text/template"
 )
 
-var templates *template.Template
-
-// CreateTemplates using the pattern './templates/**/*.html'.
-func CreateTemplates() {
-	pattern := "./templates/**/*.html"
-	templates = template.Must(template.New("html").ParseGlob(pattern))
-	log.Printf("Template engine%s\n", templates.DefinedTemplates())
+func parseTemplate(base string) *template.Template {
+	templateRoot := "web/templates"
+	path := fmt.Sprintf("%s%s", templateRoot, base)
+	return template.Must(template.ParseFiles(path))
 }
 
-func formatViewName(view string) string {
-	return fmt.Sprintf("%s.html", view)
+type CreateViewModel func(data interface{}) interface{}
+type CreateErrorViewModel func(data interface{}) error
+
+type HTMLPresenter struct {
+	view                 string
+	createViewModel      CreateViewModel
+	createErrorViewModel CreateErrorViewModel
+	template             *template.Template
+	w                    http.ResponseWriter
 }
 
-// RenderTemplate using a response writer, a view name and data to pass to the view.
-// Returns false if there is an error duing template rendering. Returns true if
-// everything is ok.
-// View names are expected to have .html extension, so it's no needed to pass the name
-// with the extension. For example, if your view is in ./templates/users/user_index.html
-// to render it you have to call this function this way:
-//
-// 		phoenix.RenderTemplate(w, "user_index", nil)
-//
-// The data parameter can be nil if you dont want to pass anything to your view.
-func RenderTemplate(w http.ResponseWriter, view string, data interface{}) bool {
-	if err := templates.ExecuteTemplate(w, formatViewName(view), data); err != nil {
-		log.Print("Error during rendering template: ")
-		log.Println(err)
-		return false
+func NewHTMLPresenter(path, view string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
+	fullPath := path
+	fullPath += view
+	return HTMLPresenter{
+		view:                 view,
+		createViewModel:      cvm,
+		createErrorViewModel: cevm,
+		template:             parseTemplate(fullPath),
 	}
-	return true
+}
+
+func (presenter *HTMLPresenter) Use(w http.ResponseWriter) {
+	presenter.w = w
+}
+
+func (presenter HTMLPresenter) execute(viewmodel interface{}) {
+	presenter.template.ExecuteTemplate(presenter.w, presenter.view, viewmodel)
+}
+
+func (presenter HTMLPresenter) Present(data interface{}) {
+	presenter.execute(presenter.createViewModel(data))
+}
+
+func (presenter HTMLPresenter) PresentError(err error) {
+	presenter.execute(presenter.createErrorViewModel(err))
 }
 
 // JSONPresenter is a presenter that renders your data in JSON format.
