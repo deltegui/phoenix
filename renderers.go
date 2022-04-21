@@ -23,10 +23,15 @@ type CreateViewModel func(data interface{}) interface{}
 type CreateErrorViewModel func(err error) interface{}
 type RequestMapper func(req *http.Request) interface{}
 
-func RenderView(layout, view, name string, mapRequest RequestMapper) http.HandlerFunc {
-	tmpl := parseTemplate(layout, view)
+type ViewConfig struct {
+	Layout, View, Name string
+	MapRequest         RequestMapper
+}
+
+func RenderView(conf ViewConfig) http.HandlerFunc {
+	tmpl := parseTemplate(conf.Layout, conf.View)
 	return func(w http.ResponseWriter, req *http.Request) {
-		tmpl.ExecuteTemplate(w, name, mapRequest(req))
+		tmpl.ExecuteTemplate(w, conf.Name, conf.MapRequest(req))
 	}
 }
 
