@@ -15,7 +15,7 @@ func parseTemplate(base string) *template.Template {
 }
 
 type CreateViewModel func(data interface{}) interface{}
-type CreateErrorViewModel func(data interface{}) error
+type CreateErrorViewModel func(err error) interface{}
 
 type HTMLPresenter struct {
 	view                 string
