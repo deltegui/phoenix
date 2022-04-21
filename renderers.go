@@ -30,21 +30,18 @@ type HTMLPresenter struct {
 	w                    http.ResponseWriter
 }
 
-func NewHTMLPresenter(view, name string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
-	return HTMLPresenter{
-		view:                 name,
-		createViewModel:      cvm,
-		createErrorViewModel: cevm,
-		template:             parseTemplate("", view),
-	}
+type HTMLConfig struct {
+	Layout, View, Name   string
+	CreateViewModel      CreateViewModel
+	CreateErrorViewModel CreateErrorViewModel
 }
 
-func NewHTMLPresenterWithLayout(layout, view, name string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
+func NewHTMLPresenter(conf HTMLConfig) HTMLPresenter {
 	return HTMLPresenter{
-		view:                 name,
-		createViewModel:      cvm,
-		createErrorViewModel: cevm,
-		template:             parseTemplate(layout, view),
+		view:                 conf.View,
+		createViewModel:      conf.CreateViewModel,
+		createErrorViewModel: conf.CreateErrorViewModel,
+		template:             parseTemplate(conf.Layout, conf.View),
 	}
 }
 
