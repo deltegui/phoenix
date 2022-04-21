@@ -11,10 +11,11 @@ import (
 func parseTemplate(layout, view string) *template.Template {
 	templateRoot := "web/templates"
 	path := fmt.Sprintf("%s%s", templateRoot, view)
+	layoutPath := fmt.Sprintf("%s%s", templateRoot, layout)
 	if layout == "" {
 		return template.Must(template.ParseFiles(path))
 	} else {
-		return template.Must(template.ParseFiles(layout, path))
+		return template.Must(template.ParseFiles(layoutPath, path))
 	}
 }
 
@@ -29,18 +30,18 @@ type HTMLPresenter struct {
 	w                    http.ResponseWriter
 }
 
-func NewHTMLPresenter(view string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
+func NewHTMLPresenter(view, name string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
 	return HTMLPresenter{
-		view:                 view,
+		view:                 name,
 		createViewModel:      cvm,
 		createErrorViewModel: cevm,
 		template:             parseTemplate("", view),
 	}
 }
 
-func NewHTMLPresenterWithLayout(layout, view string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
+func NewHTMLPresenterWithLayout(layout, view, name string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
 	return HTMLPresenter{
-		view:                 view,
+		view:                 name,
 		createViewModel:      cvm,
 		createErrorViewModel: cevm,
 		template:             parseTemplate(layout, view),
