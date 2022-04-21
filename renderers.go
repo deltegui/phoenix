@@ -8,10 +8,14 @@ import (
 	"text/template"
 )
 
-func parseTemplate(base string) *template.Template {
+func parseTemplate(layout, view string) *template.Template {
 	templateRoot := "web/templates"
-	path := fmt.Sprintf("%s%s", templateRoot, base)
-	return template.Must(template.ParseFiles(path))
+	path := fmt.Sprintf("%s%s", templateRoot, view)
+	if layout == "" {
+		return template.Must(template.ParseFiles(path))
+	} else {
+		return template.Must(template.ParseFiles(layout, path))
+	}
 }
 
 type CreateViewModel func(data interface{}) interface{}
@@ -25,14 +29,21 @@ type HTMLPresenter struct {
 	w                    http.ResponseWriter
 }
 
-func NewHTMLPresenter(path, view string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
-	fullPath := path
-	fullPath += view
+func NewHTMLPresenter(view string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
 	return HTMLPresenter{
 		view:                 view,
 		createViewModel:      cvm,
 		createErrorViewModel: cevm,
-		template:             parseTemplate(fullPath),
+		template:             parseTemplate("", view),
+	}
+}
+
+func NewHTMLPresenterWithLayout(layout, view string, cvm CreateViewModel, cevm CreateErrorViewModel) HTMLPresenter {
+	return HTMLPresenter{
+		view:                 view,
+		createViewModel:      cvm,
+		createErrorViewModel: cevm,
+		template:             parseTemplate(layout, view),
 	}
 }
 
