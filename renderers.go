@@ -21,6 +21,14 @@ func parseTemplate(layout, view string) *template.Template {
 
 type CreateViewModel func(data interface{}) interface{}
 type CreateErrorViewModel func(err error) interface{}
+type RequestMapper func(req *http.Request) interface{}
+
+func RenderView(layout, view, name string, mapRequest RequestMapper) http.HandlerFunc {
+	tmpl := parseTemplate(layout, view)
+	return func(w http.ResponseWriter, req *http.Request) {
+		tmpl.ExecuteTemplate(w, name, mapRequest(req))
+	}
+}
 
 type HTMLPresenter struct {
 	view                 string
@@ -38,7 +46,7 @@ type HTMLConfig struct {
 
 func NewHTMLPresenter(conf HTMLConfig) HTMLPresenter {
 	return HTMLPresenter{
-		view:                 conf.View,
+		view:                 conf.Name,
 		createViewModel:      conf.CreateViewModel,
 		createErrorViewModel: conf.CreateErrorViewModel,
 		template:             parseTemplate(conf.Layout, conf.View),
