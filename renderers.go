@@ -19,8 +19,6 @@ func parseTemplate(layout, view string) *template.Template {
 	}
 }
 
-type CreateViewModel func(data interface{}) interface{}
-type CreateErrorViewModel func(err error) interface{}
 type RequestMapper func(req *http.Request) interface{}
 
 type ViewConfig struct {
@@ -35,43 +33,33 @@ func RenderView(conf ViewConfig) http.HandlerFunc {
 	}
 }
 
-type HTMLPresenter struct {
-	view                 string
-	createViewModel      CreateViewModel
-	createErrorViewModel CreateErrorViewModel
-	template             *template.Template
-	w                    http.ResponseWriter
+type HTMLRenderer struct {
+	view     string
+	template *template.Template
+	w        http.ResponseWriter
 }
 
 type HTMLConfig struct {
-	Layout, View, Name   string
-	CreateViewModel      CreateViewModel
-	CreateErrorViewModel CreateErrorViewModel
+	Layout, View, Name string
 }
 
-func NewHTMLPresenter(conf HTMLConfig) HTMLPresenter {
-	return HTMLPresenter{
-		view:                 conf.Name,
-		createViewModel:      conf.CreateViewModel,
-		createErrorViewModel: conf.CreateErrorViewModel,
-		template:             parseTemplate(conf.Layout, conf.View),
+func NewHTMLRenderer(conf HTMLConfig) HTMLRenderer {
+	return HTMLRenderer{
+		view:     conf.Name,
+		template: parseTemplate(conf.Layout, conf.View),
 	}
 }
 
-func (presenter *HTMLPresenter) Use(w http.ResponseWriter) {
-	presenter.w = w
+func (renderer *HTMLRenderer) Use(w http.ResponseWriter) {
+	renderer.w = w
 }
 
-func (presenter HTMLPresenter) execute(viewmodel interface{}) {
-	presenter.template.ExecuteTemplate(presenter.w, presenter.view, viewmodel)
+func (renderer HTMLRenderer) execute(viewmodel interface{}) {
+	renderer.template.ExecuteTemplate(renderer.w, renderer.view, viewmodel)
 }
 
-func (presenter HTMLPresenter) Present(data interface{}) {
-	presenter.execute(presenter.createViewModel(data))
-}
-
-func (presenter HTMLPresenter) PresentError(err error) {
-	presenter.execute(presenter.createErrorViewModel(err))
+func (renderer HTMLRenderer) Render(data interface{}) {
+	renderer.execute(data)
 }
 
 // JSONPresenter is a presenter that renders your data in JSON format.
