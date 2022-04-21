@@ -35,7 +35,6 @@ func RenderView(conf ViewConfig, mapper RequestMapper) http.HandlerFunc {
 type HTMLRenderer struct {
 	view     string
 	template *template.Template
-	w        http.ResponseWriter
 }
 
 func NewHTMLRenderer(conf ViewConfig) HTMLRenderer {
@@ -45,16 +44,12 @@ func NewHTMLRenderer(conf ViewConfig) HTMLRenderer {
 	}
 }
 
-func (renderer *HTMLRenderer) Use(w http.ResponseWriter) {
-	renderer.w = w
+func (renderer HTMLRenderer) execute(w http.ResponseWriter, viewmodel interface{}) {
+	renderer.template.ExecuteTemplate(w, renderer.view, viewmodel)
 }
 
-func (renderer HTMLRenderer) execute(viewmodel interface{}) {
-	renderer.template.ExecuteTemplate(renderer.w, renderer.view, viewmodel)
-}
-
-func (renderer HTMLRenderer) Render(data interface{}) {
-	renderer.execute(data)
+func (renderer HTMLRenderer) Render(w http.ResponseWriter, data interface{}) {
+	renderer.execute(w, data)
 }
 
 // JSONPresenter is a presenter that renders your data in JSON format.
