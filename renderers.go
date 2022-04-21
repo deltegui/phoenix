@@ -23,13 +23,12 @@ type RequestMapper func(req *http.Request) interface{}
 
 type ViewConfig struct {
 	Layout, View, Name string
-	MapRequest         RequestMapper
 }
 
-func RenderView(conf ViewConfig) http.HandlerFunc {
+func RenderView(conf ViewConfig, mapper RequestMapper) http.HandlerFunc {
 	tmpl := parseTemplate(conf.Layout, conf.View)
 	return func(w http.ResponseWriter, req *http.Request) {
-		tmpl.ExecuteTemplate(w, conf.Name, conf.MapRequest(req))
+		tmpl.ExecuteTemplate(w, conf.Name, mapper(req))
 	}
 }
 
@@ -39,11 +38,7 @@ type HTMLRenderer struct {
 	w        http.ResponseWriter
 }
 
-type HTMLConfig struct {
-	Layout, View, Name string
-}
-
-func NewHTMLRenderer(conf HTMLConfig) HTMLRenderer {
+func NewHTMLRenderer(conf ViewConfig) HTMLRenderer {
 	return HTMLRenderer{
 		view:     conf.Name,
 		template: parseTemplate(conf.Layout, conf.View),
