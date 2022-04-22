@@ -44,12 +44,12 @@ func NewHTMLRenderer(conf ViewConfig) HTMLRenderer {
 	}
 }
 
-func (renderer HTMLRenderer) execute(w http.ResponseWriter, viewmodel interface{}) {
-	renderer.template.ExecuteTemplate(w, renderer.view, viewmodel)
+func (renderer HTMLRenderer) Render(w http.ResponseWriter, data interface{}) {
+	renderer.template.ExecuteTemplate(w, renderer.view, data)
 }
 
-func (renderer HTMLRenderer) Render(w http.ResponseWriter, data interface{}) {
-	renderer.execute(w, data)
+func (renderer HTMLRenderer) Redirect(w http.ResponseWriter, req *http.Request, url string, code int) {
+	http.Redirect(w, req, url, code)
 }
 
 // JSONPresenter is a presenter that renders your data in JSON format.
