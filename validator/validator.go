@@ -19,10 +19,14 @@ type ValidationError struct {
 	Field string
 
 	// Error is the stringified error
-	Error string
+	Err string
 
 	Value interface{}
 	Kind  reflect.Kind
+}
+
+func (v ValidationError) Error() string {
+	return v.Err
 }
 
 type PlaygroundValidator struct {
@@ -56,7 +60,7 @@ func errorsToResult(ee playgroundValidator.ValidationErrors) ValidationResult {
 			Tag:   e.ActualTag(),
 			Path:  e.StructNamespace(),
 			Field: e.Field(),
-			Error: e.Error(),
+			Err:   e.Error(),
 			Value: e.Value(),
 			Kind:  e.Kind(),
 		}

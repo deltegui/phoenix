@@ -45,7 +45,7 @@ func TestShouldCheckAndReturnValidationErrors(t *testing.T) {
 			Tag:   "min",
 			Path:  "loginRequest.Name",
 			Field: "Name",
-			Error: "Key: 'loginRequest.Name' Error:Field validation for 'Name' failed on the 'min' tag",
+			Err:   "Key: 'loginRequest.Name' Error:Field validation for 'Name' failed on the 'min' tag",
 			Value: "d",
 			Kind:  reflect.String,
 		}
@@ -60,7 +60,7 @@ func TestShouldCheckAndReturnValidationErrors(t *testing.T) {
 			Tag:   "required",
 			Path:  "loginRequest.Password",
 			Field: "Password",
-			Error: "Key: 'loginRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag",
+			Err:   "Key: 'loginRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag",
 			Value: "",
 			Kind:  reflect.String,
 		}
