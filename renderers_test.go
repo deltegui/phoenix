@@ -13,7 +13,7 @@ import (
 type testres struct {
 	name       string
 	input      interface{}
-	errs       []error
+	err        error
 	want       string
 	statusCode int
 }
@@ -32,24 +32,18 @@ func TestShouldRenderData(t *testing.T) {
 		{
 			name:       "Test with data",
 			input:      struct{ Name string }{Name: "Manolo"},
-			errs:       nil,
+			err:        nil,
 			want:       "{\"Name\":\"Manolo\"}",
 			statusCode: http.StatusOK,
 		},
 		{
 			name:  "Test with data",
 			input: struct{ Name string }{Name: "Manolo"},
-			errs: []error{
-				testErr{
-					Code:   0,
-					Reason: "First",
-				},
-				testErr{
-					Code:   1,
-					Reason: "Second",
-				},
+			err: testErr{
+				Code:   0,
+				Reason: "First",
 			},
-			want:       "[{\"Code\":0,\"Reason\":\"First\"},{\"Code\":1,\"Reason\":\"Second\"}]",
+			want:       "{\"Code\":0,\"Reason\":\"First\"}",
 			statusCode: http.StatusBadRequest,
 		},
 	}
@@ -59,7 +53,7 @@ func TestShouldRenderData(t *testing.T) {
 			recorder := httptest.NewRecorder()
 
 			presenter := phoenix.JSONPresenter(recorder, request)
-			presenter(tc.input, tc.errs)
+			presenter(tc.input, tc.err)
 
 			if recorder.Code != tc.statusCode {
 				t.Errorf("Want status '%d', got '%d'", tc.statusCode, recorder.Code)
