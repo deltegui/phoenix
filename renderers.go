@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type Present func(data interface{}, errs []error)
+type Present func(data interface{}, errs error)
 
 func JSONPresenter(w http.ResponseWriter, req *http.Request) Present {
 	render := func(data interface{}) {
@@ -18,7 +18,7 @@ func JSONPresenter(w http.ResponseWriter, req *http.Request) Present {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	}
-	return func(data interface{}, errs []error) {
+	return func(data interface{}, errs error) {
 		if errs != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			render(errs)
