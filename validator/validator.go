@@ -6,8 +6,6 @@ import (
 	playgroundValidator "github.com/go-playground/validator/v10"
 )
 
-type ValidationResult []ValidationError
-
 type ValidationError struct {
 	// Tag is the condition that have failed
 	Tag string
@@ -37,7 +35,7 @@ func New() PlaygroundValidator {
 	return PlaygroundValidator{validator: playgroundValidator.New()}
 }
 
-func (val PlaygroundValidator) Validate(target interface{}) (ValidationResult, error) {
+func (val PlaygroundValidator) Validate(target interface{}) ([]error, error) {
 	err := val.validator.Struct(target)
 	if err != nil {
 		switch err.(type) {
@@ -50,11 +48,11 @@ func (val PlaygroundValidator) Validate(target interface{}) (ValidationResult, e
 			return nil, err
 		}
 	}
-	return make(ValidationResult, 0), nil
+	return make([]error, 0), nil
 }
 
-func errorsToResult(ee playgroundValidator.ValidationErrors) ValidationResult {
-	result := make(ValidationResult, len(ee))
+func errorsToResult(ee playgroundValidator.ValidationErrors) []error {
+	result := make([]error, len(ee))
 	for i, e := range ee {
 		result[i] = ValidationError{
 			Tag:   e.ActualTag(),
