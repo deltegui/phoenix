@@ -3,7 +3,7 @@ module github.com/deltegui/phoenix
 go 1.18
 
 require (
-	github.com/go-chi/chi/v5 v5.0.3
+	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-playground/validator/v10 v10.10.1
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 )
