@@ -35,24 +35,20 @@ func New() PlaygroundValidator {
 	return PlaygroundValidator{validator: playgroundValidator.New()}
 }
 
-func (val PlaygroundValidator) Validate(target interface{}) ([]error, error) {
+func (val PlaygroundValidator) Validate(target interface{}) ([]ValidationError, error) {
 	err := val.validator.Struct(target)
 	if err != nil {
-		switch err.(type) {
-		case playgroundValidator.ValidationErrors:
-			{
-				valErr := err.(playgroundValidator.ValidationErrors)
-				return errorsToResult(valErr), nil
-			}
-		default:
+		e, ok := err.(playgroundValidator.ValidationErrors)
+		if !ok {
 			return nil, err
 		}
+		return errorsToResult(e), nil
 	}
-	return make([]error, 0), nil
+	return []ValidationError{}, nil
 }
 
-func errorsToResult(ee playgroundValidator.ValidationErrors) []error {
-	result := make([]error, len(ee))
+func errorsToResult(ee playgroundValidator.ValidationErrors) []ValidationError {
+	result := make([]ValidationError, len(ee))
 	for i, e := range ee {
 		result[i] = ValidationError{
 			Tag:   e.ActualTag(),
@@ -62,6 +58,9 @@ func errorsToResult(ee playgroundValidator.ValidationErrors) []error {
 			Value: e.Value(),
 			Kind:  e.Kind(),
 		}
+	}
+	if len(result) == 0 {
+		return nil
 	}
 	return result
 }

@@ -49,7 +49,7 @@ func TestShouldCheckAndReturnValidationErrors(t *testing.T) {
 			Value: "d",
 			Kind:  reflect.String,
 		}
-		if valErr[0].(validator.ValidationError) != expectedFirst {
+		if valErr[0] != expectedFirst {
 			fmt.Println("Expected:")
 			fmt.Println(expectedFirst)
 			fmt.Println("But have:")
@@ -64,7 +64,7 @@ func TestShouldCheckAndReturnValidationErrors(t *testing.T) {
 			Value: "",
 			Kind:  reflect.String,
 		}
-		if valErr[1].(validator.ValidationError) != expectedSecond {
+		if valErr[1] != expectedSecond {
 			fmt.Println("Expected:")
 			fmt.Println(expectedSecond)
 			fmt.Println("But have:")
@@ -81,7 +81,7 @@ func TestValidatorResultMustBeCompatibleWithError(t *testing.T) {
 		Password: "",
 	}
 	valErr, _ := v.Validate(login)
-	var errs []error = valErr // This cast should be Ok
+	var errs []validator.ValidationError = valErr // This cast should be Ok
 	if len(errs) != len(valErr) {
 		t.Error("Expected []error and ValidationResult to have the same length")
 	}
